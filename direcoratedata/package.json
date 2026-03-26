@@ -19,7 +19,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "homepage": "https://ayhamabozed25-spec.github.io/DireocrateData/",
+    "homepage": "https://ayhamabozed25-spec.github.io/DireocrateData",
   "predeploy": "npm run build",
   "deploy": "gh-pages -d build"
 
