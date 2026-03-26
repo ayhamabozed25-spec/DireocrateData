@@ -1,23 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
+
+import InstitutionForm from "./components/InstitutionForm";
+import StrengthsForm from "./components/StrengthsForm";
+import DepartmentsForm from "./components/DepartmentsForm";
+import EmployeesForm from "./components/EmployeesForm";
+import AssetsForm from "./components/AssetsForm";
+import Search from "./components/Search";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>وثيقة الخطة التنفيذية</h1>
+      <InstitutionForm />
+      <StrengthsForm institutionId="ID_OF_INSTITUTION" />
+      <DepartmentsForm institutionId="ID_OF_INSTITUTION" />
+      <EmployeesForm institutionId="ID_OF_INSTITUTION" departmentId="ID_OF_DEPARTMENT" />
+      <AssetsForm institutionId="ID_OF_INSTITUTION" departmentId="ID_OF_DEPARTMENT" employeeId="ID_OF_EMPLOYEE" />
+      <Search />
     </div>
   );
 }
