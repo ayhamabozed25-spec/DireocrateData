@@ -1,11 +1,11 @@
-// DepartmentsForm.js
-import { collection, addDoc, doc } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { Form, Button } from "react-bootstrap";
 
-export default function DepartmentsForm({ institutionId }) {
+export default function DepartmentsForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await addDoc(collection(doc(db, "institutions", institutionId), "departments"), {
+    await addDoc(collection(db, "departments"), {
       name: e.target.name.value,
       head: e.target.head.value,
     });
@@ -14,10 +14,16 @@ export default function DepartmentsForm({ institutionId }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="name" placeholder="اسم القسم" />
-      <input name="head" placeholder="رئيس القسم" />
-      <button type="submit">حفظ القسم</button>
-    </form>
+    <Form onSubmit={handleSubmit} className="p-3">
+      <Form.Group>
+        <Form.Label>اسم القسم</Form.Label>
+        <Form.Control name="name" />
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>رئيس القسم</Form.Label>
+        <Form.Control name="head" />
+      </Form.Group>
+      <Button type="submit" className="mt-3">حفظ القسم</Button>
+    </Form>
   );
 }
