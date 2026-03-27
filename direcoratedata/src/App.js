@@ -13,6 +13,7 @@ import ProjectChallengesForm from "./components/ProjectChallengesForm";
 import ServicesForm from "./components/ServicesForm";
 import StrengthsWeaknessesForm from "./components/StrengthsWeaknessesForm";
 import Search from "./components/Search";
+import Search from "./components/BuildingForm";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
+              <Nav.Link as={Link} to="/buildings">الأبنية</Nav.Link>
               <Nav.Link as={Link} to="/departments">الأقسام</Nav.Link>
               <Nav.Link as={Link} to="/divisions">الشعب</Nav.Link>
               <Nav.Link as={Link} to="/employees">الموظفون</Nav.Link>
@@ -41,6 +43,7 @@ function App() {
 
       <Container className="mt-4">
         <Routes>
+           <Route path="/buildings" element={<BuildingForm />} />
           <Route path="/departments" element={<DepartmentsForm />} />
           <Route path="/divisions" element={<DivisionsForm />} />
           <Route path="/employees" element={<EmployeesForm />} />
