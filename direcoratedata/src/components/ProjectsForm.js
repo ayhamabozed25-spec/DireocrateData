@@ -20,9 +20,42 @@ export default function ProjectsForm() {
 
   return (
     <Form onSubmit={handleSubmit} className="p-3">
-      <Form.Group><Form.Label>اسم المشروع</Form.Label><Form.Control name="name" /></Form.Group>
-      <Form.Group><Form.Label>تفاصيل المشروع</Form.Label><Form.Control name="details" /></Form.Group>
-      <Form.Group><Form.Label>الموقع</Form.Label><Form.Control name="location" /></Form.Group>
-      <Form.Group><Form.Label>تاريخ البدء</Form.Label><Form.Control type="date" name="startDate" /></Form.Group>
-      <Form.Group><Form.Label>تاريخ الانتهاء</Form.Label><Form.Control type="date" name="endDate" /></Form.Group>
-      <Form.Group><Form.Label>الميزانية</Form.Label><Form.Control type="number" name="budget"
+      <Form.Group>
+        <Form.Label>اسم المشروع</Form.Label>
+        <Form.Control name="name" />
+      </Form.Group>
+
+      <Form.Group>
+        <Form.Label>تفاصيل المشروع</Form.Label>
+        <Form.Control name="details" />
+      </Form.Group>
+
+      <Form.Group>
+        <Form.Label>الموقع</Form.Label>
+        <Form.Control name="location" />
+      </Form.Group>
+
+      <Form.Group>
+        <Form.Label>تاريخ البدء</Form.Label>
+        <Form.Control type="date" name="startDate" />
+      </Form.Group>
+
+      <Form.Group>
+        <Form.Label>تاريخ الانتهاء</Form.Label>
+        <Form.Control type="date" name="endDate" />
+      </Form.Group>
+
+      <Form.Group>
+        <Form.Label>الميزانية</Form.Label>
+        <Form.Control type="number" name="budget" />
+      </Form.Group>
+
+      <Form.Group>
+        <Form.Label>الحالة</Form.Label>
+        <Form.Control name="status" />
+      </Form.Group>
+
+      <Button type="submit" className="mt-3">حفظ المشروع</Button>
+    </Form>
+  );
+}
