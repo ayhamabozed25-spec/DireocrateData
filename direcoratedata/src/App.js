@@ -1,20 +1,14 @@
-
-import InstitutionForm from "./components/InstitutionForm";
-import StrengthsForm from "./components/StrengthsForm";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import DepartmentsForm from "./components/DepartmentsForm";
 import EmployeesForm from "./components/EmployeesForm";
-import AssetsForm from "./components/AssetsForm";
 import Search from "./components/Search";
 
 function App() {
   return (
-    <div>
-      <h1>وثيقة الخطة التنفيذية</h1>
-      <InstitutionForm />
-      <StrengthsForm institutionId="ID_OF_INSTITUTION" />
-      <DepartmentsForm institutionId="ID_OF_INSTITUTION" />
-      <EmployeesForm institutionId="ID_OF_INSTITUTION" departmentId="ID_OF_DEPARTMENT" />
-      <AssetsForm institutionId="ID_OF_INSTITUTION" departmentId="ID_OF_DEPARTMENT" employeeId="ID_OF_EMPLOYEE" />
+    <div className="container mt-4">
+      <h1 className="mb-4">وثيقة الخطة التنفيذية</h1>
+      <DepartmentsForm />
+      <EmployeesForm />
       <Search />
     </div>
   );
