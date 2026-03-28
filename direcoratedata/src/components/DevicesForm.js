@@ -1,6 +1,6 @@
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Card, InputGroup, ListGroup } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import Select from "react-select";
 
@@ -13,8 +13,8 @@ export default function DevicesForm() {
   const [deviceType, setDeviceType] = useState("");
   const [brand, setBrand] = useState("");
   const [status, setStatus] = useState("");
+  const [processor, setProcessor] = useState("");
 
-  // جلب الموظفين
   useEffect(() => {
     const fetchEmployees = async () => {
       const snapshot = await getDocs(collection(db, "employees"));
@@ -27,7 +27,6 @@ export default function DevicesForm() {
     fetchEmployees();
   }, []);
 
-  // جلب الأجهزة
   useEffect(() => {
     const fetchDevices = async () => {
       const snapshot = await getDocs(collection(db, "devices"));
@@ -43,7 +42,9 @@ export default function DevicesForm() {
       need,
       type: deviceType === "أخرى" ? e.target.otherType.value : deviceType,
       brand: brand === "أخرى" ? e.target.otherBrand.value : brand,
-      model: e.target.model.value === "أخرى" ? e.target.otherModel.value : e.target.model.value,
+      model: e.target.model.value,
+      processor: processor === "أخرى" ? e.target.otherProcessor.value : processor,
+      ram: e.target.ram?.value || null,
       employee: need === "مطلوب" ? null : e.target.employee.value,
       purchaseDate: need === "مطلوب" ? null : e.target.purchaseDate.value,
       cost: parseFloat(e.target.cost.value),
@@ -52,7 +53,7 @@ export default function DevicesForm() {
       effect: (status === "معطل" || status === "يعمل بأداء ضعيف") ? e.target.effect.value : null,
       priority: status === "معطل" ? e.target.priority.value : null,
       description: e.target.description.value,
-      notes: e.target.notes.value,
+      notes: e.target.notes.value || null,
     });
 
     alert("تم حفظ الجهاز ✅");
@@ -61,43 +62,57 @@ export default function DevicesForm() {
     setDeviceType("");
     setBrand("");
     setStatus("");
+    setProcessor("");
   };
 
-  // فلترة الأجهزة
   const filteredDevices = devices.filter(dev =>
     dev.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     dev.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     dev.model?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const brandOptions = {
+    "لاب توب": ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple", "أخرى"],
+    "سيرفر": ["Dell", "HP", "IBM", "Cisco", "Supermicro", "أخرى"],
+    "حاسوب مكتبي": ["Dell", "HP", "Lenovo", "Asus", "MSI", "أخرى"],
+    "تاب": ["Samsung", "Apple", "Huawei", "Lenovo", "أخرى"],
+    "طابعة": ["Canon", "HP", "Epson", "Brother", "أخرى"],
+    "راوتر": ["Cisco", "TP-Link", "Netgear", "Huawei", "أخرى"],
+    "أخرى": ["أخرى"]
+  };
+
   return (
     <div className="p-3">
       <h3>إضافة جهاز جديد</h3>
 
-      {/* البحث */}
-      <Form.Group className="mb-3">
-        <Form.Label>بحث عن جهاز</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="أدخل نوع الجهاز أو الشركة أو الموديل"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Form.Group>
+      {/* بطاقة البحث */}
+      <Card className="mb-4 shadow-sm">
+        <Card.Body>
+          <Card.Title>🔍 البحث عن جهاز</Card.Title>
+          <InputGroup>
+            <Form.Control
+              type="text"
+              placeholder="أدخل نوع الجهاز أو الشركة أو الموديل"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Button variant="primary">بحث</Button>
+          </InputGroup>
 
-      {searchTerm && (
-        <ul>
-          {filteredDevices.map((dev, index) => (
-            <li key={index}>
-              {dev.type} - {dev.brand} - {dev.model} - الموظف: {dev.employee}
-            </li>
-          ))}
-        </ul>
-      )}
+          {searchTerm && (
+            <ListGroup className="mt-3">
+              {filteredDevices.map((dev, index) => (
+                <ListGroup.Item key={index}>
+                  {dev.type} - {dev.brand} - {dev.model} - الموظف: {dev.employee}
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          )}
+        </Card.Body>
+      </Card>
 
       {/* النموذج */}
       <Form onSubmit={handleSubmit}>
-        {/* الحاجة */}
         <Form.Group>
           <Form.Label>الحاجة</Form.Label>
           <Form.Select value={need} onChange={(e) => setNeed(e.target.value)} required>
@@ -107,7 +122,6 @@ export default function DevicesForm() {
           </Form.Select>
         </Form.Group>
 
-        {/* نوع الجهاز */}
         <Form.Group>
           <Form.Label>نوع الجهاز</Form.Label>
           <Form.Select value={deviceType} onChange={(e) => setDeviceType(e.target.value)} required>
@@ -125,71 +139,54 @@ export default function DevicesForm() {
           <Form.Group><Form.Label>نوع آخر</Form.Label><Form.Control name="otherType" required /></Form.Group>
         )}
 
-        {/* البراند */}
-        {need === "متوفر" && (
+        {need === "متوفر" && deviceType && (
           <>
             <Form.Group>
               <Form.Label>البراند</Form.Label>
               <Form.Select value={brand} onChange={(e) => setBrand(e.target.value)} required>
                 <option value="">اختر</option>
-                <option value="Dell">Dell</option>
-                <option value="HP">HP</option>
-                <option value="Lenovo">Lenovo</option>
-                <option value="Asus">Asus</option>
-                <option value="Canon">Canon</option>
-                <option value="Cisco">Cisco</option>
-                <option value="أخرى">أخرى</option>
+                {brandOptions[deviceType]?.map((b, i) => (
+                  <option key={i} value={b}>{b}</option>
+                ))}
               </Form.Select>
             </Form.Group>
             {brand === "أخرى" && (
               <Form.Group><Form.Label>براند آخر</Form.Label><Form.Control name="otherBrand" required /></Form.Group>
             )}
 
-            {/* الموديل */}
+            <Form.Group><Form.Label>الموديل</Form.Label><Form.Control name="model" required /></Form.Group>
+
             <Form.Group>
-              <Form.Label>الموديل</Form.Label>
-              <Form.Select name="model" required>
+              <Form.Label>المعالج</Form.Label>
+              <Form.Select value={processor} onChange={(e) => setProcessor(e.target.value)} required>
                 <option value="">اختر</option>
-                <option value="Model1">Model1</option>
-                <option value="Model2">Model2</option>
+                <option value="Intel i3">Intel i3</option>
+                <option value="Intel i5">Intel i5</option>
+                <option value="Intel i7">Intel i7</option>
+                <option value="Intel i9">Intel i9</option>
+                <option value="AMD Ryzen 3">AMD Ryzen 3</option>
+                <option value="AMD Ryzen 5">AMD Ryzen 5</option>
+                <option value="AMD Ryzen 7">AMD Ryzen 7</option>
+                <option value="AMD Ryzen 9">AMD Ryzen 9</option>
                 <option value="أخرى">أخرى</option>
               </Form.Select>
             </Form.Group>
-            <Form.Group><Form.Label>موديل آخر</Form.Label><Form.Control name="otherModel" /></Form.Group>
-
-            {/* باقي الحقول */}
-            <Form.Group><Form.Label>تاريخ الشراء</Form.Label><Form.Control type="date" name="purchaseDate" required /></Form.Group>
-            <Form.Group><Form.Label>الموظف</Form.Label><Select options={employees} name="employee" placeholder="اختر الموظف" isSearchable /></Form.Group>
-            <Form.Group><Form.Label>الكلفة (بالدولار)</Form.Label><Form.Control type="number" step="0.01" name="cost" required /></Form.Group>
-
-            <Form.Group>
-              <Form.Label>الحالة</Form.Label>
-              <Form.Select value={status} onChange={(e) => setStatus(e.target.value)} required>
-                <option value="">اختر</option>
-                <option value="يعمل بشكل جيد">يعمل بشكل جيد</option>
-                <option value="يعمل بأداء ضعيف">يعمل بأداء ضعيف</option>
-                <option value="معطل">معطل</option>
-              </Form.Select>
-            </Form.Group>
-
-            {status === "معطل" && (
-              <>
-                <Form.Group><Form.Label>وصف العطل</Form.Label><Form.Control name="breakdown" required /></Form.Group>
-                <Form.Group><Form.Label>أولوية الإصلاح (1-5)</Form.Label><Form.Control type="number" min="1" max="5" name="priority" required /></Form.Group>
-              </>
+            {processor === "أخرى" && (
+              <Form.Group><Form.Label>معالج آخر</Form.Label><Form.Control name="otherProcessor" required /></Form.Group>
             )}
 
-            {(status === "معطل" || status === "يعمل بأداء ضعيف") && (
-              <Form.Group><Form.Label>التأثير على الخدمة (%)</Form.Label><Form.Control type="number" name="effect" required /></Form.Group>
+            {(deviceType === "لاب توب" || deviceType === "سيرفر" || deviceType === "تاب") && (
+              <Form.Group>
+                <Form.Label>الذاكرة RAM</Form.Label>
+                <Form.Select name="ram" required>
+                  <option value="">اختر</option>
+                  <option value="2">2 GB</option>
+                  <option value="4">4 GB</option>
+                  <option value="8">8 GB</option>
+                  <option value="16">16 GB</option>
+                  <option value="32">32 GB</option>
+                </Form.Select>
+              </Form.Group>
             )}
-          </>
-        )}
 
-        <Form.Group><Form.Label>الوصف</Form.Label><Form.Control name="description" required /></Form.Group>
-        <Form.Group><Form.Label>ملاحظات</Form.Label><Form.Control name="notes" required /></Form.Group>
-
-        <Button type="submit" className="mt-3">حفظ الجهاز</Button>
-      </Form>
-    </div>
-  );
-}
+            <Form.Group><Form.Label>تاريخ الشراء</Form.Label><Form.Control type="date" name="purchaseDate" required
