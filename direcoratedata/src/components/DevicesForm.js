@@ -189,4 +189,56 @@ export default function DevicesForm() {
               </Form.Group>
             )}
 
-            <Form.Group><Form.Label>تاريخ الشراء</Form.Label><Form.Control type="date" name="purchaseDate" required
+            <Form.Group><Form.Label>تاريخ الشراء</Form.Label><Form.Control type="date" name="purchaseDate" required /></Form.Group>
+            <Form.Group>
+              <Form.Label>الموظف</Form.Label>
+              <Select options={employees} name="employee" placeholder="اختر الموظف" isSearchable />
+            </Form.Group>
+            <Form.Group><Form.Label>الكلفة (بالدولار)</Form.Label><Form.Control type="number" step="0.01" name="cost" required /></Form.Group>
+
+            <Form.Group>
+              <Form.Label>الحالة</Form.Label>
+              <Form.Select value={status} onChange={(e) => setStatus(e.target.value)} required>
+                <option value="يعمل بشكل جيد">يعمل بشكل جيد</option>
+                <option value="يعمل بأداء ضعيف">يعمل بأداء ضعيف</option>
+                <option value="معطل">معطل</option>
+              </Form.Select>
+            </Form.Group>
+
+            {status === "معطل" && (
+              <>
+                <Form.Group>
+                  <Form.Label>وصف العطل</Form.Label>
+                  <Form.Control name="breakdown" required />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>أولوية الإصلاح (1-5)</Form.Label>
+                  <Form.Control type="number" min="1" max="5" name="priority" required />
+                </Form.Group>
+              </>
+            )}
+
+            {(status === "معطل" || status === "يعمل بأداء ضعيف") && (
+              <Form.Group>
+                <Form.Label>التأثير على الخدمة (%)</Form.Label>
+                <Form.Control type="number" name="effect" required />
+              </Form.Group>
+            )}
+          </>
+        )}
+
+        <Form.Group>
+          <Form.Label>الوصف</Form.Label>
+          <Form.Control name="description" required />
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label>ملاحظات</Form.Label>
+          <Form.Control name="notes" />
+        </Form.Group>
+
+        <Button type="submit" className="mt-3">حفظ الجهاز</Button>
+      </Form>
+    </div>
+  );
+}
