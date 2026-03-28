@@ -171,10 +171,11 @@ export default function DevicesForm() {
                 <option value="أخرى">أخرى</option>
               </Form.Select>
             </Form.Group>
+         )}
             {processor === "أخرى" && (
               <Form.Group><Form.Label>معالج آخر</Form.Label><Form.Control name="otherProcessor" required /></Form.Group>
             )}
-          )}
+         
             {(deviceType === "لاب توب" || deviceType === "سيرفر" || deviceType === "تاب" || deviceType === "حاسوب مكتبي") && (
               <Form.Group>
                 <Form.Label>الذاكرة RAM</Form.Label>
