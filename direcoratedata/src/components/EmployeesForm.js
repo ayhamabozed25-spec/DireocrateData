@@ -14,6 +14,7 @@ export default function EmployeesForm() {
   const [qualification, setQualification] = useState("");
   const [university, setUniversity] = useState("");
   const [specialization, setSpecialization] = useState("");
+  const [jobTitle, setJobTitle] = useState(""); // ✅ جديد
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -63,8 +64,8 @@ export default function EmployeesForm() {
       certificateSource: e.target.certificateSource.value,
       certificateDate: e.target.certificateDate.value,
       contract: e.target.contract.value,
-      jobTitle: e.target.jobTitle.value,
-      otherJobTitle: e.target.otherJobTitle?.value || null,
+      jobTitle,
+      otherJobTitle: jobTitle === "أخرى" ? e.target.otherJobTitle?.value || null,
       matchCertificate: e.target.matchCertificate.value,
       jobCategory: e.target.jobCategory.value,
       salary: e.target.salary.value,
@@ -79,6 +80,7 @@ export default function EmployeesForm() {
     setQualification("");
     setUniversity("");
     setSpecialization("");
+    setJobTitle(""); // ✅ إعادة التهيئة
   };
 
   const filteredEmployees = employees.filter(emp =>
@@ -199,7 +201,7 @@ export default function EmployeesForm() {
           <Form.Group><Form.Label>مؤهل آخر</Form.Label><Form.Control name="otherQualification" required /></Form.Group>
         )}
 
-                {(qualification === "جامعة 5 سنوات" || qualification === "جامعة 4 سنوات" || qualification === "معهد" || qualification === "ثانوي") && (
+        {(qualification === "        {(qualification === "جامعة 5 سنوات" || qualification === "جامعة 4 سنوات" || qualification === "معهد" || qualification === "ثانوي") && (
           <Form.Group>
             <Form.Label>اسم الجامعة / المعهد</Form.Label>
             <Form.Select value={university} onChange={(e) => setUniversity(e.target.value)} name="university" required>
@@ -267,7 +269,12 @@ export default function EmployeesForm() {
         {/* المسمى الوظيفي */}
         <Form.Group>
           <Form.Label>المسمى الوظيفي</Form.Label>
-          <Form.Select name="jobTitle" required>
+          <Form.Select
+            name="jobTitle"
+            value={jobTitle}
+            onChange={(e) => setJobTitle(e.target.value)}
+            required
+          >
             <option value="">اختر</option>
             <option value="محاسب">محاسب</option>
             <option value="مهندس">مهندس</option>
@@ -276,7 +283,7 @@ export default function EmployeesForm() {
             <option value="أخرى">أخرى</option>
           </Form.Select>
         </Form.Group>
-        {e.target?.jobTitle?.value === "أخرى" && (
+        {jobTitle === "أخرى" && (
           <Form.Group><Form.Label>مسمى وظيفي آخر</Form.Label><Form.Control name="otherJobTitle" required /></Form.Group>
         )}
 
