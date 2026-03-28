@@ -1,6 +1,6 @@
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Card, InputGroup, ListGroup } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import Select from "react-select";
 
@@ -9,7 +9,11 @@ export default function CarsForm() {
   const [cars, setCars] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // جلب الموظفين من قاعدة البيانات
+  const [need, setNeed] = useState("");
+  const [carType, setCarType] = useState("");
+  const [carName, setCarName] = useState("");
+  const [status, setStatus] = useState("");
+
   useEffect(() => {
     const fetchEmployees = async () => {
       const snapshot = await getDocs(collection(db, "employees"));
@@ -22,7 +26,6 @@ export default function CarsForm() {
     fetchEmployees();
   }, []);
 
-  // جلب الآليات من قاعدة البيانات
   useEffect(() => {
     const fetchCars = async () => {
       const snapshot = await getDocs(collection(db, "cars"));
@@ -33,70 +36,147 @@ export default function CarsForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     await addDoc(collection(db, "cars"), {
-      employee: e.target.employee.value,
-      type: e.target.type.value,
-      name: e.target.name.value,
-      status: e.target.status.value,
-      breakdown: e.target.breakdown.value,
-      effect: e.target.effect.value,
-      priority: e.target.priority.value,
-      need: e.target.need.value,
+      need,
+      type: carType === "أخرى" ? e.target.otherType.value : carType,
+      name: carName === "أخرى" ? e.target.otherName.value : carName,
+      employee: need === "مطلوب" ? null : e.target.employee.value,
+      status: need === "مطلوب" ? null : status,
+      breakdown: status === "معطلة" ? e.target.breakdown.value : null,
+      effect: status === "معطلة" ? e.target.effect.value : null,
+      priority: status === "معطلة" ? e.target.priority.value : null,
+      year: need === "متوفر" ? e.target.year.value : null,
     });
+
     alert("تم حفظ الآلية ✅");
     e.target.reset();
+    setNeed("");
+    setCarType("");
+    setCarName("");
+    setStatus("");
   };
 
-  // فلترة الآليات حسب البحث
   const filteredCars = cars.filter(car =>
-    car.name.toLowerCase().includes(searchTerm.toLowerCase())
+    car.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // أسماء مرتبطة بنوع السيارة
+  const carNamesOptions = {
+    "سيارة خدمة": ["سبورتاج", "توسان", "كيا ريو", "هيونداي النترا", "أخرى"],
+    "مركبة زراعية": ["جرار", "كومباين", "أخرى"],
+    "سيارة إسعاف": ["مرسيدس سبرينتر", "فورد ترانزيت", "أخرى"],
+    "شاحنة": ["فولفو FH", "مرسيدس أكتروس", "أخرى"],
+    "باص": ["هيونداي كاونتي", "مرسيدس ميني باص", "أخرى"],
+    "أخرى": ["أخرى"]
+  };
 
   return (
     <div className="p-3">
       <h3>إضافة آلية جديدة</h3>
 
-      {/* زر البحث عن الآليات */}
-      <Form.Group className="mb-3">
-        <Form.Label>بحث عن آلية</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="أدخل اسم الآلية"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Form.Group>
+      {/* بطاقة البحث */}
+      <Card className="mb-4 shadow-sm">
+        <Card.Body>
+          <Card.Title>🔍 البحث عن آلية</Card.Title>
+          <InputGroup>
+            <Form.Control
+              type="text"
+              placeholder="أدخل اسم الآلية"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Button variant="primary">بحث</Button>
+          </InputGroup>
 
-      {/* عرض نتائج البحث */}
-      {searchTerm && (
-        <ul>
-          {filteredCars.map((car, index) => (
-            <li key={index}>
-              {car.name} - الموظف: {car.employee} - الحالة: {car.status}
-            </li>
-          ))}
-        </ul>
-      )}
+          {searchTerm && (
+            <ListGroup className="mt-3">
+              {filteredCars.map((car, index) => (
+                <ListGroup.Item key={index}>
+                  {car.name} - الموظف: {car.employee} - الحالة: {car.status}
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          )}
+        </Card.Body>
+      </Card>
 
-      {/* نموذج إضافة آلية */}
+      {/* النموذج */}
       <Form onSubmit={handleSubmit}>
+        {/* الحاجة */}
         <Form.Group>
-          <Form.Label>الموظف</Form.Label>
-          <Select
-            options={employees}
-            name="employee"
-            placeholder="اختر الموظف"
-            isSearchable
-          />
+          <Form.Label>الحاجة</Form.Label>
+          <Form.Select value={need} onChange={(e) => setNeed(e.target.value)} required>
+            <option value="">اختر</option>
+            <option value="متوفر">متوفر</option>
+            <option value="مطلوب">مطلوب</option>
+          </Form.Select>
         </Form.Group>
 
-        <Form.Group><Form.Label>نوع الآلية</Form.Label><Form.Control name="type" /></Form.Group>
-        <Form.Group><Form.Label>اسم الآلية</Form.Label><Form.Control name="name" /></Form.Group>
-        <Form.Group><Form.Label>الحالة</Form.Label><Form.Control name="status" /></Form.Group>
-        <Form.Group><Form.Label>سبب العطل</Form.Label><Form.Control name="breakdown" /></Form.Group>
-        <Form.Group><Form.Label>التأثير على الخدمة</Form.Label><Form.Control name="effect" /></Form.Group>
-        <Form.Group><Form.Label>أولوية الإصلاح</Form.Label><Form.Control name="priority" /></Form.Group>
-        <Form.Group><Form.Label>الحاجة</Form.Label><Form.Control name="need" /></Form.Group>
+        {/* نوع الآلية */}
+        <Form.Group>
+          <Form.Label>نوع الآلية</Form.Label>
+          <Form.Select value={carType} onChange={(e) => setCarType(e.target.value)} required>
+            <option value="">اختر</option>
+            <option value="سيارة خدمة">سيارة خدمة</option>
+            <option value="مركبة زراعية">مركبة زراعية</option>
+            <option value="سيارة إسعاف">سيارة إسعاف</option>
+            <option value="شاحنة">شاحنة</option>
+            <option value="باص">باص</option>
+            <option value="أخرى">أخرى</option>
+          </Form.Select>
+        </Form.Group>
+        {carType === "أخرى" && (
+          <Form.Group><Form.Label>نوع آخر</Form.Label><Form.Control name="otherType" required /></Form.Group>
+        )}
+
+        {/* اسم الآلية */}
+        {carType && (
+          <Form.Group>
+            <Form.Label>اسم الآلية</Form.Label>
+            <Form.Select value={carName} onChange={(e) => setCarName(e.target.value)} required>
+              <option value="">اختر</option>
+              {carNamesOptions[carType]?.map((n, i) => (
+                <option key={i} value={n}>{n}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        )}
+        {carName === "أخرى" && (
+          <Form.Group><Form.Label>اسم آخر</Form.Label><Form.Control name="otherName" required /></Form.Group>
+        )}
+
+        {/* سنة التصنيع */}
+        {need === "متوفر" && (
+          <Form.Group><Form.Label>سنة التصنيع</Form.Label><Form.Control type="number" name="year" required /></Form.Group>
+        )}
+
+        {/* الحقول التي تظهر فقط عند اختيار متوفر */}
+        {need === "متوفر" && (
+          <>
+            <Form.Group>
+              <Form.Label>الموظف</Form.Label>
+              <Select options={employees} name="employee" placeholder="اختر الموظف" isSearchable />
+            </Form.Group>
+
+            <Form.Group>
+              <Form.Label>الحالة</Form.Label>
+              <Form.Select value={status} onChange={(e) => setStatus(e.target.value)} required>
+                <option value="">اختر</option>
+                <option value="في الخدمة">في الخدمة</option>
+                <option value="معطلة">معطلة</option>
+              </Form.Select>
+            </Form.Group>
+
+            {status === "معطلة" && (
+              <>
+                <Form.Group><Form.Label>سبب العطل</Form.Label><Form.Control name="breakdown" required /></Form.Group>
+                <Form.Group><Form.Label>التأثير على الخدمة</Form.Label><Form.Control name="effect" required /></Form.Group>
+                <Form.Group><Form.Label>أولوية الإصلاح (1-5)</Form.Label><Form.Control type="number" min="1" max="5" name="priority" required /></Form.Group>
+              </>
+            )}
+          </>
+        )}
 
         <Button type="submit" className="mt-3">حفظ الآلية</Button>
       </Form>
