@@ -1,11 +1,20 @@
 import { useState, useEffect } from "react";
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, ListGroup } from "react-bootstrap";
 
 export default function ServicesForm() {
+  const [services, setServices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [results, setResults] = useState([]);
+
+  // جلب الخدمات من قاعدة البيانات مرة واحدة
+  useEffect(() => {
+    const fetchServices = async () => {
+      const snapshot = await getDocs(collection(db, "services"));
+      setServices(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    };
+    fetchServices();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,17 +35,12 @@ export default function ServicesForm() {
     e.target.reset();
   };
 
-  const handleSearch = async () => {
-    if (!searchTerm) return;
-    const q = query(
-      collection(db, "services"),
-      where("name", ">=", searchTerm),
-      where("name", "<=", searchTerm + "\uf8ff")
-    );
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    setResults(data);
-  };
+  // فلترة الخدمات حسب البحث
+  const filteredServices = services.filter(service =>
+    service.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.details?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.target?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="p-3">
@@ -62,21 +66,22 @@ export default function ServicesForm() {
           <Form.Label>بحث عن خدمة</Form.Label>
           <Form.Control
             type="text"
-            placeholder="أدخل اسم الخدمة..."
+            placeholder="أدخل اسم الخدمة أو التفاصيل أو المستهدف"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </Form.Group>
-        <Button className="mt-2" onClick={handleSearch}>بحث</Button>
 
-        {/* عرض النتائج */}
-        <ListGroup className="mt-3">
-          {results.map((service) => (
-            <ListGroup.Item key={service.id}>
-              <strong>{service.name}</strong> - {service.details}
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
+        {/* عرض نتائج البحث */}
+        {searchTerm && (
+          <ListGroup className="mt-3">
+            {filteredServices.map((service) => (
+              <ListGroup.Item key={service.id}>
+                <strong>{service.name}</strong> - {service.details} - المستهدف: {service.target}
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        )}
       </div>
     </div>
   );
