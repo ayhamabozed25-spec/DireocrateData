@@ -201,17 +201,23 @@ export default function EmployeesForm() {
           <Form.Group><Form.Label>مؤهل آخر</Form.Label><Form.Control name="otherQualification" required /></Form.Group>
         )}
 
-        {(qualification === "        {(qualification === "جامعة 5 سنوات" || qualification === "جامعة 4 سنوات" || qualification === "معهد" || qualification === "ثانوي") && (
-          <Form.Group>
-            <Form.Label>اسم الجامعة / المعهد</Form.Label>
-            <Form.Select value={university} onChange={(e) => setUniversity(e.target.value)} name="university" required>
-              <option value="">اختر</option>
-              {universitiesOptions[qualification]?.map((u, i) => (
-                <option key={i} value={u}>{u}</option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-        )}
+    {(qualification === "جامعة 5 سنوات" || qualification === "جامعة 4 سنوات" || qualification === "معهد" || qualification === "ثانوي") && (
+  <Form.Group>
+    <Form.Label>اسم الجامعة / المعهد</Form.Label>
+    <Form.Select
+      value={university}
+      onChange={(e) => setUniversity(e.target.value)}
+      name="university"
+      required
+    >
+      <option value="">اختر</option>
+      {universitiesOptions[qualification]?.map((u, i) => (
+        <option key={i} value={u}>{u}</option>
+      ))}
+    </Form.Select>
+  </Form.Group>
+)}
+
         {university === "أخرى" && (
           <Form.Group><Form.Label>جامعة / معهد آخر</Form.Label><Form.Control name="otherUniversity" required /></Form.Group>
         )}
