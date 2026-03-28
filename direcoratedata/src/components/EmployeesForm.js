@@ -65,7 +65,7 @@ export default function EmployeesForm() {
       certificateDate: e.target.certificateDate.value,
       contract: e.target.contract.value,
       jobTitle,
-      otherJobTitle: jobTitle === "أخرى" ? e.target.otherJobTitle?.value || null,
+      otherJobTitle: jobTitle === "أخرى" ? (e.target.otherJobTitle?.value || null) : null,
       matchCertificate: e.target.matchCertificate.value,
       jobCategory: e.target.jobCategory.value,
       salary: e.target.salary.value,
