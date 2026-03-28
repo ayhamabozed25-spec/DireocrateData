@@ -155,7 +155,7 @@ export default function DevicesForm() {
             )}
 
             <Form.Group><Form.Label>الموديل</Form.Label><Form.Control name="model" required /></Form.Group>
-
+    {(deviceType === "لاب توب" || deviceType === "سيرفر" || deviceType === "حاسوب مكتبي") && (
             <Form.Group>
               <Form.Label>المعالج</Form.Label>
               <Form.Select value={processor} onChange={(e) => setProcessor(e.target.value)} required>
@@ -174,8 +174,8 @@ export default function DevicesForm() {
             {processor === "أخرى" && (
               <Form.Group><Form.Label>معالج آخر</Form.Label><Form.Control name="otherProcessor" required /></Form.Group>
             )}
-
-            {(deviceType === "لاب توب" || deviceType === "سيرفر" || deviceType === "تاب") && (
+          )}
+            {(deviceType === "لاب توب" || deviceType === "سيرفر" || deviceType === "تاب" || deviceType === "حاسوب مكتبي") && (
               <Form.Group>
                 <Form.Label>الذاكرة RAM</Form.Label>
                 <Form.Select name="ram" required>
