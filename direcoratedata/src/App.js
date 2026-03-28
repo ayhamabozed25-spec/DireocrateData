@@ -13,7 +13,7 @@ import ProjectChallengesForm from "./components/ProjectChallengesForm";
 import ServicesForm from "./components/ServicesForm";
 import StrengthsWeaknessesForm from "./components/StrengthsWeaknessesForm";
 import Search from "./components/Search";
-import Search from "./components/BuildingForm";
+import BuildingForm from "./components/BuildingForm";
 
 function App() {
   return (
