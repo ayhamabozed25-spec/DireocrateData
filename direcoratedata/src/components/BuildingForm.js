@@ -82,7 +82,7 @@ export default function BuildingForm() {
         <Form.Group>
           <Form.Label>الملكية</Form.Label>
           <Form.Select value={ownership} onChange={(e) => setOwnership(e.target.value)} required>
-            <option value="">اختر نوع الملكية</option>
+          
             <option value="بناء حكومي">بناء حكومي</option>
             <option value="إيجار">إيجار</option>
             <option value="أخرى">أخرى</option>
@@ -101,7 +101,7 @@ export default function BuildingForm() {
         <Form.Group>
           <Form.Label>الحالة الإنشائية</Form.Label>
           <Form.Select value={structuralCondition} onChange={(e) => setStructuralCondition(e.target.value)} required>
-            <option value="">اختر الحالة</option>
+         
             <option value="جيد جدا">جيد جدا</option>
             <option value="مرمم حديثا">مرمم حديثا</option>
             <option value="بحاجة ترميم جزئي">بحاجة ترميم جزئي</option>
@@ -124,7 +124,7 @@ export default function BuildingForm() {
         <Form.Group>
           <Form.Label>نظام إنذار الحريق</Form.Label>
           <Form.Select name="fireAlarmSystem" required>
-            <option value="">اختر</option>
+           
             <option value="نعم">نعم</option>
             <option value="لا">لا</option>
           </Form.Select>
@@ -133,7 +133,7 @@ export default function BuildingForm() {
         <Form.Group>
           <Form.Label>نظام البصمة</Form.Label>
           <Form.Select name="fingerprintSystem" required>
-            <option value="">اختر</option>
+          
             <option value="نعم">نعم</option>
             <option value="لا">لا</option>
           </Form.Select>
