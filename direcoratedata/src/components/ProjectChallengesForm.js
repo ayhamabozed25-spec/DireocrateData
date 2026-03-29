@@ -15,8 +15,8 @@ export default function ProjectChallengesForm() {
     const fetchProjects = async () => {
       const snapshot = await getDocs(collection(db, "projects"));
       const data = snapshot.docs.map(doc => ({
-        value: doc.data().name,
-        label: doc.data().name
+        value: doc.data().name || "",
+        label: doc.data().name || ""
       }));
       setProjects(data);
     };
@@ -27,7 +27,7 @@ export default function ProjectChallengesForm() {
   useEffect(() => {
     const fetchChallenges = async () => {
       const snapshot = await getDocs(collection(db, "projectChallenges"));
-      setChallenges(snapshot.docs.map(doc => doc.data()));
+      setChallenges(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     };
     fetchChallenges();
   }, []);
@@ -54,17 +54,21 @@ export default function ProjectChallengesForm() {
     setSelectedProject(null);
   };
 
-  // فلترة التحديات
-  const filteredChallenges = challenges.filter(ch =>
-    ch.riskDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ch.project.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // فلترة التحديات بشكل آمن
+  const filteredChallenges = challenges.filter(ch => {
+    const project = ch.project || "";
+    const risk = ch.riskDescription || "";
+    return (
+      project.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      risk.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <div className="p-3">
       <h3>إضافة تحدي جديد للمشروع</h3>
 
-      {/* حقل البحث بتنسيق أجمل */}
+      {/* حقل البحث */}
       <Form.Group className="mb-4">
         <Form.Label style={{ fontWeight: "bold" }}>🔍 بحث عن تحدي</Form.Label>
         <Form.Control
@@ -81,14 +85,20 @@ export default function ProjectChallengesForm() {
       </Form.Group>
 
       {/* نتائج البحث */}
-      {searchTerm && (
+      {searchTerm && filteredChallenges.length > 0 && (
         <ul style={{ background: "#f7f7f7", padding: "15px", borderRadius: "10px" }}>
-          {filteredChallenges.map((ch, index) => (
-            <li key={index}>
-              <strong>المشروع:</strong> {ch.project} — <strong>الخطر:</strong> {ch.riskDescription} — <strong>الفئة:</strong> {ch.category}
+          {filteredChallenges.map((ch) => (
+            <li key={ch.id}>
+              <strong>المشروع:</strong> {ch.project} — 
+              <strong> الخطر:</strong> {ch.riskDescription} — 
+              <strong> الفئة:</strong> {ch.category}
             </li>
           ))}
         </ul>
+      )}
+
+      {searchTerm && filteredChallenges.length === 0 && (
+        <div className="text-danger">لا توجد نتائج مطابقة</div>
       )}
 
       {/* نموذج إضافة التحدي */}
