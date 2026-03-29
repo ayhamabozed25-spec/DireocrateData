@@ -2,7 +2,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import { useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 
 export default function AddBuilding() {
   const [ownership, setOwnership] = useState("");
@@ -66,6 +66,14 @@ export default function AddBuilding() {
     return location ? <Marker position={location} /> : null;
   }
 
+  function MapController({ coords }) {
+    const map = useMap();
+    if (coords) {
+      map.setView(coords, 15);
+    }
+    return null;
+  }
+
   const handleSearchAddress = async () => {
     if (!address) return;
     const res = await fetch(
@@ -76,7 +84,8 @@ export default function AddBuilding() {
     const data = await res.json();
     if (data && data.length > 0) {
       const { lat, lon } = data[0];
-      setLocation({ lat: parseFloat(lat), lng: parseFloat(lon) });
+      const coords = { lat: parseFloat(lat), lng: parseFloat(lon) };
+      setLocation(coords);
     } else {
       alert("لم يتم العثور على الموقع");
     }
@@ -87,7 +96,133 @@ export default function AddBuilding() {
       <h3>إضافة بناء جديد</h3>
 
       <Form onSubmit={handleSubmit}>
-        {/* باقي الحقول كما في الكود السابق */}
+        <Form.Group>
+          <Form.Label>اسم البناء</Form.Label>
+          <Form.Control name="name" required />
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label>الملكية</Form.Label>
+          <Form.Select
+            value={ownership}
+            onChange={(e) => setOwnership(e.target.value)}
+            required
+          >
+            <option value="">اختر</option>
+            <option value="بناء حكومي">بناء حكومي</option>
+            <option value="إيجار">إيجار</option>
+            <option value="أخرى">أخرى</option>
+          </Form.Select>
+        </Form.Group>
+
+        {ownership === "أخرى" && (
+          <Form.Group>
+            <Form.Label>نوع الملكية الأخرى</Form.Label>
+            <Form.Control name="otherOwnership" required />
+          </Form.Group>
+        )}
+
+        {ownership !== "بناء حكومي" && (
+          <Row>
+            <Col>
+              <Form.Group>
+                <Form.Label>الكلفة</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.01"
+                  name="cost"
+                  required
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group>
+                <Form.Label>العملة</Form.Label>
+                <Form.Select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                >
+                  <option value="دولار">دولار</option>
+                  <option value="ليرة سورية">ليرة سورية</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+        )}
+
+        <Form.Group>
+          <Form.Label>عدد الطوابق</Form.Label>
+          <Form.Control type="number" name="floors" required />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>عدد المكاتب</Form.Label>
+          <Form.Control type="number" name="offices" required />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>السعة</Form.Label>
+          <Form.Control type="number" name="capacity" required />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>المساحة</Form.Label>
+          <Form.Control type="number" step="0.01" name="area" required />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>تاريخ البناء</Form.Label>
+          <Form.Control type="date" name="buildingDate" required />
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label>الحالة الإنشائية</Form.Label>
+          <Form.Select
+            value={structuralCondition}
+            onChange={(e) => setStructuralCondition(e.target.value)}
+            required
+          >
+            <option value="">اختر</option>
+            <option value="جيد جدا">جيد جدا</option>
+            <option value="مرمم حديثا">مرمم حديثا</option>
+            <option value="بحاجة ترميم جزئي">بحاجة ترميم جزئي</option>
+            <option value="بحاجة ترميم كلي">بحاجة ترميم كلي</option>
+          </Form.Select>
+        </Form.Group>
+
+        {(structuralCondition === "بحاجة ترميم جزئي" ||
+          structuralCondition === "بحاجة ترميم كلي") && (
+          <Form.Group>
+            <Form.Label>مستوى الخطورة (%)</Form.Label>
+            <Form.Control type="number" name="riskLevel" required />
+          </Form.Group>
+        )}
+
+        {structuralCondition !== "جيد جدا" && (
+          <Form.Group>
+            <Form.Label>تاريخ الترميم</Form.Label>
+            <Form.Control type="date" name="restorationDate" required />
+          </Form.Group>
+        )}
+
+        {structuralCondition === "مرمم حديثا" && (
+          <Form.Group>
+            <Form.Label>تفاصيل الترميم</Form.Label>
+            <Form.Control name="restorationDetails" required />
+          </Form.Group>
+        )}
+
+        <Form.Group>
+          <Form.Label>نظام إنذار الحريق</Form.Label>
+          <Form.Select name="fireAlarmSystem" required>
+            <option value="نعم">نعم</option>
+            <option value="لا">لا</option>
+          </Form.Select>
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Label>نظام البصمة</Form.Label>
+          <Form.Select name="fingerprintSystem" required>
+            <option value="نعم">نعم</option>
+            <option value="لا">لا</option>
+          </Form.Select>
+        </Form.Group>
 
         <Form.Group>
           <Form.Label>الموقع</Form.Label>
@@ -116,6 +251,7 @@ export default function AddBuilding() {
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <LocationPicker />
           {location && <Marker position={location} />}
+          <MapController coords={location} />
         </MapContainer>
 
         {location && (
