@@ -53,7 +53,7 @@ export default function AddBuilding() {
           : null,
       fireAlarmSystem: e.target.fireAlarmSystem.value,
       fingerprintSystem: e.target.fingerprintSystem.value,
-      location,
+      location: location ? { lat: location.lat, lng: location.lng } : null,
     });
 
     alert("تم حفظ معلومات البناء بنجاح");
