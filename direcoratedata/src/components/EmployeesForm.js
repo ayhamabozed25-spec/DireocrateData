@@ -440,7 +440,7 @@ const universitiesOptions = {
             <option value="ثانوي">ثانوي</option>
             <option value="أساسي">أساسي</option>
             <option value="إعدادي">إعدادي</option>
-            <option value="غير متعلم">أخرى</option>
+            <option value="غير متعلم">غير متعلم</option>
           </Form.Select>
         </Form.Group>
      
