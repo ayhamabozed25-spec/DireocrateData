@@ -74,7 +74,7 @@ function App() {
            <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/add-swot" element={<AddSwot />} />
          <Route path="/add-Employee" element={<AddEmployee />} />
-         <Route path="/Edit-Employee" element={<EditEmployee />} />
+         <Route path="/edit-employee" element={<EditEmployee />} />
          <Route path="/add-Device" element={<AddDevice />} />
          <Route path="/add-Car" element={<AddCar />} />
         <Route path="/add-Furniture" element={<AddFurniture />} />
