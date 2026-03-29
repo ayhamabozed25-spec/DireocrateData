@@ -93,6 +93,30 @@ export default function EmployeesForm() {
     : [];
 
 const universitiesOptions = {
+
+  "دراسات عليا": [
+    "كلية الطب البشري",
+    "كلية طب الأسنان",
+    "كلية الصيدلة",
+    "كلية الهندسة المدنية",
+    "كلية الهندسة المعمارية",
+    "كلية الهندسة المعلوماتية",
+    "كلية الهندسة الكهربائية",
+    "كلية الهندسة الميكانيكية",
+    "كلية الهندسة الزراعية",
+    "كلية الهندسة البيئية",
+    "كلية الفنون الجميلة",
+     "كلية الاقتصاد",
+    "كلية الحقوق",
+    "كلية التربية",
+    "كلية الآداب",
+    "كلية العلوم",
+    "كلية الإعلام",
+    "كلية السياحة",
+    "كلية الطب البيطري",
+    "أخرى"
+  ],
+  
   "جامعة 5 سنوات": [
     "كلية الطب البشري",
     "كلية طب الأسنان",
@@ -415,14 +439,11 @@ const universitiesOptions = {
             <option value="ثانوي">ثانوي</option>
             <option value="أساسي">أساسي</option>
             <option value="إعدادي">إعدادي</option>
-            <option value="أخرى">أخرى</option>
+            <option value="غير متعلم">أخرى</option>
           </Form.Select>
         </Form.Group>
-        {qualification === "أخرى" && (
-          <Form.Group><Form.Label>مؤهل آخر</Form.Label><Form.Control name="otherQualification" required /></Form.Group>
-        )}
-
-    {(qualification === "جامعة 5 سنوات" || qualification === "جامعة 4 سنوات" || qualification === "معهد" || qualification === "ثانوي") && (
+     
+    {(qualification === "دراسات عليا" || qualification === "جامعة 5 سنوات" || qualification === "جامعة 4 سنوات" || qualification === "معهد" || qualification === "ثانوي") && (
   <Form.Group>
     <Form.Label>اسم الجامعة / المعهد</Form.Label>
     <Form.Select
@@ -455,31 +476,21 @@ const universitiesOptions = {
             </Form.Select>
           </Form.Group>
         )}
-        {specialization === "أخرى" && (
+        {(specialization === "أخرى" || university === "أخرى") && (
           <Form.Group><Form.Label>تخصص آخر</Form.Label><Form.Control name="otherSpecialization" required /></Form.Group>
         )}
 
-        {/* مصدر الشهادة */}
-       {need === "متوفر" && (  <Form.Group>
-          <Form.Label>مصدر الشهادة</Form.Label>
-          <Form.Select name="certificateSource" required>
+        <Form.Group>
+          <Form.Label>طالب / متخرج</Form.Label>
+          <Form.Select name="IsStudent" required>
             <option value="">اختر</option>
-            <option value="دمشق">دمشق</option>
-            <option value="حلب">حلب</option>
-            <option value="اللاذقية">اللاذقية</option>
-            <option value="حمص">حمص</option>
-            <option value="حماة">حماة</option>
-            <option value="طرطوس">طرطوس</option>
-            <option value="درعا">درعا</option>
-            <option value="الرقة">الرقة</option>
-            <option value="دير الزور">دير الزور</option>
-            <option value="الحسكة">الحسكة</option>
-            <option value="إدلب">إدلب</option>
-            <option value="السويداء">السويداء</option>
+            <option value="طالب">طالب</option>
+            <option value="حاصل على الشهادة">حاصل على الشهادة</option>
           </Form.Select>
         </Form.Group>
-        )}
-        {need === "متوفر" && ( <Form.Group><Form.Label>تاريخ الحصول على الشهادة</Form.Label><Form.Control type="date" name="certificateDate" required /></Form.Group>)}
+
+
+        {(need === "متوفر" && IsStudent === "حاصل على الشهادة") && ( <Form.Group><Form.Label>تاريخ الحصول على الشهادة</Form.Label><Form.Control type="date" name="certificateDate" required /></Form.Group>)}
 
         {/* نوع العقد */}
         <Form.Group>
