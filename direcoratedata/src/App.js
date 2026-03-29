@@ -10,7 +10,8 @@ import CarsForm from "./components/CarsForm";
 import FurnitureForm from "./components/FurnitureForm";
 import ProjectsForm from "./components/ProjectsForm";
 import ProjectChallengesForm from "./components/ProjectChallengesForm";
-import BuildingForm from "./components/BuildingForm";
+import BuildingForm from "./components/BuildingList";
+import BuildingForm from "./components/AddBuilding";
 import "leaflet/dist/leaflet.css";
 import AddService from "./components/AddService";
 import ServicesList from "./components/ServicesList";
@@ -45,7 +46,8 @@ function App() {
 
       <Container className="mt-4">
         <Routes>
-           <Route path="/buildings" element={<BuildingForm />} />
+           <Route path="/buildings" element={<BuildingList />} />
+          <Route path="/add-building" element={<AddBuilding />} />
           <Route path="/departments" element={<DepartmentsForm />} />
           <Route path="/divisions" element={<DivisionsForm />} />
           <Route path="/employees" element={<EmployeesForm />} />
