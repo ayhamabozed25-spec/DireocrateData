@@ -407,7 +407,17 @@ const universitiesOptions = {
         <Form.Group><Form.Label>العمر</Form.Label><Form.Control type="number" name="age" min="15" max="80" required /></Form.Group>
 
         {need === "متوفر" && (
-          <Form.Group><Form.Label>الهاتف</Form.Label><Form.Control name="phone" required /></Form.Group>
+          <Form.Group>
+  <Form.Label>الهاتف</Form.Label>
+  <Form.Control
+    name="phone"
+    required
+    inputMode="numeric"
+    pattern="[0-9]{9,}"
+    placeholder="أدخل رقم الهاتف (9 أرقام على الأقل)"
+  />
+</Form.Group>
+
         )}
 
         <Form.Group>
