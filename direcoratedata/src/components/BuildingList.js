@@ -33,7 +33,7 @@ export default function BuildingList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingBuilding, setEditingBuilding] = useState(null);
-  const [mapPosition, setMapPosition] = useState([35.523, 35.791]); // موقع افتراضي
+  const [mapPosition, setMapPosition] = useState([35.523, 35.791]);
   const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
@@ -253,6 +253,7 @@ export default function BuildingList() {
                   </Row>
                 </Form.Group>
               )}
+
               {/* الطوابق */}
               <Form.Group className="mb-3">
                 <Form.Label>عدد الطوابق</Form.Label>
@@ -265,7 +266,7 @@ export default function BuildingList() {
                 />
               </Form.Group>
 
-              {/* المكاتب */}
+                           {/* المكاتب */}
               <Form.Group className="mb-3">
                 <Form.Label>عدد المكاتب</Form.Label>
                 <Form.Control
@@ -435,3 +436,4 @@ export default function BuildingList() {
           </Button>
         </Modal.Footer>
       </Modal>
+
