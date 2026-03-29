@@ -139,220 +139,285 @@ export default function DevicesList() {
       </Table>
 
       {/* نافذة التعديل */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>تعديل الجهاز</Modal.Title>
-        </Modal.Header>
+     <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
+  <Modal.Header closeButton>
+    <Modal.Title>تعديل الجهاز</Modal.Title>
+  </Modal.Header>
 
-        <Modal.Body>
-          {editingDevice && (
-            <Form>
+  <Modal.Body>
+    {editingDevice && (
+      <Form onSubmit={handleSaveEdit}>
 
-              {/* الحاجة */}
-              <Form.Group className="mb-3">
-                <Form.Label>الحاجة</Form.Label>
-                <Form.Select
-                  value={editingDevice.need}
-                  onChange={(e) =>
-                    setEditingDevice({ ...editingDevice, need: e.target.value })
-                  }
-                >
-                  <option value="مطلوب">مطلوب</option>
-                  <option value="متوفر">متوفر</option>
-                </Form.Select>
-              </Form.Group>
+        {/* الحاجة */}
+        <Form.Group>
+          <Form.Label>الحاجة</Form.Label>
+          <Form.Select
+            value={editingDevice.need}
+            onChange={(e) => setEditingDevice({ ...editingDevice, need: e.target.value })}
+            required
+          >
+            <option value="">اختر</option>
+            <option value="مطلوب">مطلوب</option>
+            <option value="متوفر">متوفر</option>
+          </Form.Select>
+        </Form.Group>
 
-              {/* نوع الجهاز */}
-              <Form.Group className="mb-3">
-                <Form.Label>نوع الجهاز</Form.Label>
+        {/* نوع الجهاز */}
+        <Form.Group>
+          <Form.Label>نوع الجهاز</Form.Label>
+          <Form.Select
+            value={editingDevice.type}
+            onChange={(e) => setEditingDevice({ ...editingDevice, type: e.target.value })}
+            required
+          >
+            <option value="">اختر</option>
+            <option value="لاب توب">لاب توب</option>
+            <option value="سيرفر">سيرفر</option>
+            <option value="حاسوب مكتبي">حاسوب مكتبي</option>
+            <option value="تاب">تاب</option>
+            <option value="طابعة">طابعة</option>
+            <option value="راوتر">راوتر</option>
+            <option value="أخرى">أخرى</option>
+          </Form.Select>
+        </Form.Group>
+
+        {editingDevice.type === "أخرى" && (
+          <Form.Group>
+            <Form.Label>نوع آخر</Form.Label>
+            <Form.Control
+              value={editingDevice.otherType || ""}
+              onChange={(e) => setEditingDevice({ ...editingDevice, otherType: e.target.value })}
+              required
+            />
+          </Form.Group>
+        )}
+
+        {/* المعالج */}
+        {(["لاب توب", "سيرفر", "حاسوب مكتبي"].includes(editingDevice.type)) && (
+          <>
+            <Form.Group>
+              <Form.Label>المعالج</Form.Label>
+              <Form.Select
+                value={editingDevice.processor}
+                onChange={(e) => setEditingDevice({ ...editingDevice, processor: e.target.value })}
+                required
+              >
+                <option value="">اختر</option>
+                <option value="Intel i3">Intel i3</option>
+                <option value="Intel i5">Intel i5</option>
+                <option value="Intel i7">Intel i7</option>
+                <option value="Intel i9">Intel i9</option>
+                <option value="AMD Ryzen 3">AMD Ryzen 3</option>
+                <option value="AMD Ryzen 5">AMD Ryzen 5</option>
+                <option value="AMD Ryzen 7">AMD Ryzen 7</option>
+                <option value="AMD Ryzen 9">AMD Ryzen 9</option>
+                <option value="أخرى">أخرى</option>
+              </Form.Select>
+            </Form.Group>
+
+            {editingDevice.processor === "أخرى" && (
+              <Form.Group>
+                <Form.Label>معالج آخر</Form.Label>
                 <Form.Control
-                  value={editingDevice.type}
-                  onChange={(e) =>
-                    setEditingDevice({ ...editingDevice, type: e.target.value })
-                  }
+                  value={editingDevice.otherProcessor || ""}
+                  onChange={(e) => setEditingDevice({ ...editingDevice, otherProcessor: e.target.value })}
+                  required
                 />
               </Form.Group>
+            )}
+          </>
+        )}
 
-              {/* البراند */}
-              <Form.Group className="mb-3">
-                <Form.Label>البراند</Form.Label>
+        {/* RAM */}
+        {(["لاب توب", "سيرفر", "تاب", "حاسوب مكتبي"].includes(editingDevice.type)) && (
+          <Form.Group>
+            <Form.Label>الذاكرة RAM</Form.Label>
+            <Form.Select
+              value={editingDevice.ram}
+              onChange={(e) => setEditingDevice({ ...editingDevice, ram: e.target.value })}
+              required
+            >
+              <option value="">اختر</option>
+              <option value="2">2 GB</option>
+              <option value="4">4 GB</option>
+              <option value="8">8 GB</option>
+              <option value="16">16 GB</option>
+              <option value="32">32 GB</option>
+            </Form.Select>
+          </Form.Group>
+        )}
+
+        {/* الوصف */}
+        <Form.Group>
+          <Form.Label>الوصف</Form.Label>
+          <Form.Control
+            value={editingDevice.description}
+            onChange={(e) => setEditingDevice({ ...editingDevice, description: e.target.value })}
+            required
+          />
+        </Form.Group>
+
+        {/* ملاحظات */}
+        <Form.Group>
+          <Form.Label>ملاحظات</Form.Label>
+          <Form.Control
+            value={editingDevice.notes || ""}
+            onChange={(e) => setEditingDevice({ ...editingDevice, notes: e.target.value })}
+          />
+        </Form.Group>
+
+        {/* الحقول التي تظهر فقط عند اختيار متوفر */}
+        {editingDevice.need === "متوفر" && (
+          <>
+            {/* البراند */}
+            <Form.Group>
+              <Form.Label>البراند</Form.Label>
+              <Form.Select
+                value={editingDevice.brand}
+                onChange={(e) => setEditingDevice({ ...editingDevice, brand: e.target.value })}
+                required
+              >
+                <option value="">اختر</option>
+                {brandOptions[editingDevice.type]?.map((b, i) => (
+                  <option key={i} value={b}>{b}</option>
+                ))}
+                <option value="أخرى">أخرى</option>
+              </Form.Select>
+            </Form.Group>
+
+            {editingDevice.brand === "أخرى" && (
+              <Form.Group>
+                <Form.Label>براند آخر</Form.Label>
                 <Form.Control
-                  value={editingDevice.brand}
-                  onChange={(e) =>
-                    setEditingDevice({ ...editingDevice, brand: e.target.value })
-                  }
+                  value={editingDevice.otherBrand || ""}
+                  onChange={(e) => setEditingDevice({ ...editingDevice, otherBrand: e.target.value })}
+                  required
                 />
               </Form.Group>
+            )}
 
-              {/* الموديل */}
-              <Form.Group className="mb-3">
-                <Form.Label>الموديل</Form.Label>
-                <Form.Control
-                  value={editingDevice.model}
-                  onChange={(e) =>
-                    setEditingDevice({ ...editingDevice, model: e.target.value })
-                  }
-                />
-              </Form.Group>
+            {/* تاريخ الشراء */}
+            <Form.Group>
+              <Form.Label>تاريخ الشراء</Form.Label>
+              <Form.Control
+                type="date"
+                value={editingDevice.purchaseDate || ""}
+                onChange={(e) => setEditingDevice({ ...editingDevice, purchaseDate: e.target.value })}
+                required
+              />
+            </Form.Group>
 
-              {/* المعالج */}
-              <Form.Group className="mb-3">
-                <Form.Label>المعالج</Form.Label>
-                <Form.Control
-                  value={editingDevice.processor}
-                  onChange={(e) =>
-                    setEditingDevice({ ...editingDevice, processor: e.target.value })
-                  }
-                />
-              </Form.Group>
+            {/* الموظف المستلم */}
+            <Form.Group>
+              <Form.Label>الموظف المستلم</Form.Label>
+              <Select
+                options={employees}
+                value={editingDevice.employee ? { label: editingDevice.employee, value: editingDevice.employee } : null}
+                onChange={(selected) => setEditingDevice({ ...editingDevice, employee: selected.value })}
+                placeholder="اختر الموظف"
+                isSearchable
+                required
+              />
+            </Form.Group>
 
-              {/* الذاكرة */}
-              <Form.Group className="mb-3">
-                <Form.Label>RAM</Form.Label>
-                <Form.Control
-                  value={editingDevice.ram}
-                  onChange={(e) =>
-                    setEditingDevice({ ...editingDevice, ram: e.target.value })
-                  }
-                />
-              </Form.Group>
+            {/* الحالة */}
+            <Form.Group>
+              <Form.Label>الحالة</Form.Label>
+              <Form.Select
+                value={editingDevice.status}
+                onChange={(e) => setEditingDevice({ ...editingDevice, status: e.target.value })}
+                required
+              >
+                <option value="">اختر</option>
+                <option value="يعمل بشكل جيد">يعمل بشكل جيد</option>
+                <option value="يعمل بأداء ضعيف">يعمل بأداء ضعيف</option>
+                <option value="معطل">معطل</option>
+              </Form.Select>
+            </Form.Group>
 
-              {/* الموظف */}
-              {editingDevice.need === "متوفر" && (
-                <Form.Group className="mb-3">
-                  <Form.Label>الموظف</Form.Label>
-                  <Select
-                    options={employees}
-                    value={{ label: editingDevice.employee, value: editingDevice.employee }}
-                    onChange={(selected) =>
-                      setEditingDevice({ ...editingDevice, employee: selected.value })
-                    }
-                  />
-                </Form.Group>
-              )}
-
-              {/* تاريخ الشراء */}
-              {editingDevice.need === "متوفر" && (
-                <Form.Group className="mb-3">
-                  <Form.Label>تاريخ الشراء</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={editingDevice.purchaseDate || ""}
-                    onChange={(e) =>
-                      setEditingDevice({ ...editingDevice, purchaseDate: e.target.value })
-                    }
-                  />
-                </Form.Group>
-              )}
-
-              {/* الكلفة */}
-              <Form.Group className="mb-3">
-                <Form.Label>الكلفة</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={editingDevice.cost}
-                  onChange={(e) =>
-                    setEditingDevice({ ...editingDevice, cost: e.target.value })
-                  }
-                />
-              </Form.Group>
-
-              {/* الحالة */}
-              {editingDevice.need === "متوفر" && (
-                <Form.Group className="mb-3">
-                  <Form.Label>الحالة</Form.Label>
-                  <Form.Select
-                    value={editingDevice.status}
-                    onChange={(e) =>
-                      setEditingDevice({ ...editingDevice, status: e.target.value })
-                    }
-                  >
-                    <option value="يعمل بشكل جيد">يعمل بشكل جيد</option>
-                    <option value="يعمل بأداء ضعيف">يعمل بأداء ضعيف</option>
-                    <option value="معطل">معطل</option>
-                  </Form.Select>
-                </Form.Group>
-              )}
-
-              {/* وصف العطل */}
-              {editingDevice.status === "معطل" && (
-                <Form.Group className="mb-3">
+            {/* وصف العطل + أولوية الإصلاح */}
+            {editingDevice.status === "معطل" && (
+              <>
+                <Form.Group>
                   <Form.Label>وصف العطل</Form.Label>
                   <Form.Control
                     value={editingDevice.breakdown || ""}
-                    onChange={(e) =>
-                      setEditingDevice({ ...editingDevice, breakdown: e.target.value })
-                    }
+                    onChange={(e) => setEditingDevice({ ...editingDevice, breakdown: e.target.value })}
+                    required
                   />
                 </Form.Group>
-              )}
 
-              {/* التأثير */}
-              {(editingDevice.status === "معطل" ||
-                editingDevice.status === "يعمل بأداء ضعيف") && (
-                <Form.Group className="mb-3">
-                  <Form.Label>التأثير على الخدمة (%)</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={editingDevice.effect || ""}
-                    onChange={(e) =>
-                      setEditingDevice({ ...editingDevice, effect: e.target.value })
-                    }
-                  />
-                </Form.Group>
-              )}
-
-              {/* أولوية الإصلاح */}
-              {editingDevice.status === "معطل" && (
-                <Form.Group className="mb-3">
+                <Form.Group>
                   <Form.Label>أولوية الإصلاح (1-5)</Form.Label>
                   <Form.Control
                     type="number"
                     min="1"
                     max="5"
                     value={editingDevice.priority || ""}
-                    onChange={(e) =>
-                      setEditingDevice({ ...editingDevice, priority: e.target.value })
-                    }
+                    onChange={(e) => setEditingDevice({ ...editingDevice, priority: e.target.value })}
+                    required
                   />
                 </Form.Group>
-              )}
+              </>
+            )}
 
-              {/* الوصف */}
-              <Form.Group className="mb-3">
-                <Form.Label>الوصف</Form.Label>
+            {/* التأثير */}
+            {(editingDevice.status === "معطل" || editingDevice.status === "يعمل بأداء ضعيف") && (
+              <Form.Group>
+                <Form.Label>التأثير على الخدمة (%)</Form.Label>
                 <Form.Control
-                  value={editingDevice.description}
-                  onChange={(e) =>
-                    setEditingDevice({ ...editingDevice, description: e.target.value })
-                  }
+                  type="number"
+                  value={editingDevice.effect || ""}
+                  onChange={(e) => setEditingDevice({ ...editingDevice, effect: e.target.value })}
+                  required
                 />
               </Form.Group>
+            )}
 
-              {/* ملاحظات */}
-              <Form.Group className="mb-3">
-                <Form.Label>ملاحظات</Form.Label>
-                <Form.Control
-                  value={editingDevice.notes || ""}
-                  onChange={(e) =>
-                    setEditingDevice({ ...editingDevice, notes: e.target.value })
-                  }
-                />
-              </Form.Group>
+            {/* الكلفة + العملة */}
+                    <Row className="mt-3">
+          <Col md={8}>
+            <Form.Label>الكلفة *</Form.Label>
+            <Form.Control
+              type="number"
+              step="0.01"
+              value={editingDevice.cost || ""}
+              onChange={(e) =>
+                setEditingDevice({ ...editingDevice, cost: e.target.value })
+              }
+              required
+            />
+          </Col>
+          <Col md={4}>
+            <Form.Label>العملة</Form.Label>
+            <Form.Select
+              value={editingDevice.currency || "USD"}
+              onChange={(e) =>
+                setEditingDevice({ ...editingDevice, currency: e.target.value })
+              }
+            >
+              <option value="USD">دولار</option>
+              <option value="SYP">ليرة سورية</option>
+            </Form.Select>
+          </Col>
+        </Row>
+      </>
+    )}
 
-            </Form>
-          )}
-        </Modal.Body>
+    <Button type="submit" className="mt-3">
+      حفظ التعديلات
+    </Button>
+  </Form>
+)}
+</Modal.Body>
 
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            إلغاء
-          </Button>
-          <Button variant="primary" onClick={handleSaveEdit}>
-            حفظ التعديلات
-          </Button>
-        </Modal.Footer>
-      </Modal>
+<Modal.Footer>
+  <Button variant="secondary" onClick={() => setShowModal(false)}>
+    إلغاء
+  </Button>
+</Modal.Footer>
+</Modal>
+
     </div>
   );
 }
