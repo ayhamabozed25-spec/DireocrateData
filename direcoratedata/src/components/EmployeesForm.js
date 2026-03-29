@@ -3,6 +3,7 @@ import { db } from "../firebase";
 import { Form, Button, Card, InputGroup, ListGroup } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import Select from "react-select";
+import { jobTitles } from "./jobTitles";
 
 export default function EmployeesForm() {
   const [departments, setDepartments] = useState([]);
@@ -273,25 +274,31 @@ export default function EmployeesForm() {
         </Form.Group>
 
         {/* المسمى الوظيفي */}
-        <Form.Group>
-          <Form.Label>المسمى الوظيفي</Form.Label>
-          <Form.Select
-            name="jobTitle"
-            value={jobTitle}
-            onChange={(e) => setJobTitle(e.target.value)}
-            required
-          >
-            <option value="">اختر</option>
-            <option value="محاسب">محاسب</option>
-            <option value="مهندس">مهندس</option>
-            <option value="فني">فني</option>
-            <option value="إداري">إداري</option>
-            <option value="أخرى">أخرى</option>
-          </Form.Select>
-        </Form.Group>
-        {jobTitle === "أخرى" && (
-          <Form.Group><Form.Label>مسمى وظيفي آخر</Form.Label><Form.Control name="otherJobTitle" required /></Form.Group>
-        )}
+    
+<Form.Group>
+  <Form.Label>المسمى الوظيفي</Form.Label>
+  <Form.Control
+    list="jobTitlesList"
+    value={jobTitle}
+    onChange={(e) => setJobTitle(e.target.value)}
+    placeholder="ابحث عن المسمى الوظيفي..."
+    required
+  />
+  <datalist id="jobTitlesList">
+    {jobTitles.map((title, idx) => (
+      <option key={idx} value={title} />
+    ))}
+    <option value="أخرى" />
+  </datalist>
+</Form.Group>
+
+{jobTitle === "أخرى" && (
+  <Form.Group>
+    <Form.Label>مسمى وظيفي آخر</Form.Label>
+    <Form.Control name="otherJobTitle" required />
+  </Form.Group>
+)}
+
 
         {/* مطابقة الشهادة للمسمى الوظيفي */}
         <Form.Group>
