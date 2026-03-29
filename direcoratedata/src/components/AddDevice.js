@@ -122,8 +122,6 @@ export default function AddDevice() {
                 <Form.Control name="otherBrand" required />
               </Form.Group>
             )}
-         <>
-          )}
 
             {/* المعالج */}
             {(deviceType === "لاب توب" || deviceType === "سيرفر" || deviceType === "حاسوب مكتبي") && (
@@ -165,8 +163,7 @@ export default function AddDevice() {
                 </Form.Select>
               </Form.Group>
             )}
-{need === "متوفر" && deviceType && (
-          <>
+
             {/* تاريخ الشراء */}
             <Form.Group>
               <Form.Label>تاريخ الشراء</Form.Label>
@@ -189,6 +186,7 @@ export default function AddDevice() {
             <Form.Group>
               <Form.Label>الحالة</Form.Label>
               <Form.Select value={status} onChange={(e) => setStatus(e.target.value)} required>
+                <option value="">اختر</option>
                 <option value="يعمل بشكل جيد">يعمل بشكل جيد</option>
                 <option value="يعمل بأداء ضعيف">يعمل بأداء ضعيف</option>
                 <option value="معطل">معطل</option>
