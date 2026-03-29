@@ -147,15 +147,40 @@ export default function FurnitureList() {
               </Form.Group>
 
               {/* النوع */}
-              <Form.Group className="mb-3">
-                <Form.Label>نوع الأثاث</Form.Label>
-                <Form.Control
-                  value={editingItem.type}
-                  onChange={(e) =>
-                    setEditingItem({ ...editingItem, type: e.target.value })
-                  }
-                />
-              </Form.Group>
+          <Form.Group className="mb-3">
+  <Form.Label>نوع الأثاث</Form.Label>
+  <Form.Select
+    value={editingItem.type}
+    onChange={(e) =>
+      setEditingItem({ ...editingItem, type: e.target.value })
+    }
+    required
+  >
+    <option value="">اختر</option>
+    <option value="طاولة مكتب">طاولة مكتب</option>
+    <option value="كرسي مكتب">كرسي مكتب</option>
+    <option value="طاولة اجتماعات">طاولة اجتماعات</option>
+    <option value="أريكة">أريكة</option>
+    <option value="خزانة ملفات">خزانة ملفات</option>
+    <option value="مكتبة">مكتبة</option>
+    <option value="أخرى">أخرى</option>
+  </Form.Select>
+</Form.Group>
+
+{/* إذا اختار "أخرى" يظهر حقل إضافي */}
+{editingItem.type === "أخرى" && (
+  <Form.Group className="mb-3">
+    <Form.Label>نوع آخر</Form.Label>
+    <Form.Control
+      value={editingItem.otherType || ""}
+      onChange={(e) =>
+        setEditingItem({ ...editingItem, otherType: e.target.value })
+      }
+      required
+    />
+  </Form.Group>
+)}
+
 
               {/* الكمية */}
               <Form.Group className="mb-3">
