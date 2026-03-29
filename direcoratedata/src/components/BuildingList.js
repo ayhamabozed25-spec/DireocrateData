@@ -3,13 +3,38 @@ import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firesto
 import { db } from "../firebase";
 import { Form, Button, Table, Modal, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { OpenStreetMapProvider } from "leaflet-geosearch";
+
+const markerIcon = new L.Icon({
+  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+function LocationPicker({ position, setPosition }) {
+  useMapEvents({
+    click(e) {
+      setPosition([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+
+  return position ? (
+    <Marker position={position} icon={markerIcon}>
+      <Popup>الموقع المحدد</Popup>
+    </Marker>
+  ) : null;
+}
 
 export default function BuildingList() {
   const [buildings, setBuildings] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [showModal, setShowModal] = useState(false);
   const [editingBuilding, setEditingBuilding] = useState(null);
+  const [mapPosition, setMapPosition] = useState([35.523, 35.791]); // موقع افتراضي
+  const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
 
@@ -24,12 +49,13 @@ export default function BuildingList() {
 
   const handleEdit = (building) => {
     setEditingBuilding({ ...building });
+    setMapPosition(building.mapPosition || [35.523, 35.791]);
     setShowModal(true);
   };
 
   const handleSaveEdit = async () => {
     const ref = doc(db, "buildings", editingBuilding.id);
-    await updateDoc(ref, editingBuilding);
+    await updateDoc(ref, { ...editingBuilding, mapPosition });
     setShowModal(false);
     loadBuildings();
   };
@@ -40,6 +66,15 @@ export default function BuildingList() {
     loadBuildings();
   };
 
+  const handleSearch = async () => {
+    const provider = new OpenStreetMapProvider();
+    const results = await provider.search({ query: searchQuery });
+    if (results && results.length > 0) {
+      const { x, y } = results[0];
+      setMapPosition([y, x]);
+    }
+  };
+
   const filteredBuildings = buildings.filter((b) =>
     b.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -48,14 +83,12 @@ export default function BuildingList() {
     <div className="p-3">
       <h3>الأبنية</h3>
 
-      {/* زر إضافة */}
       <div className="d-flex justify-content-end mb-3">
         <Button variant="primary" onClick={() => navigate("/add-building")}>
           إضافة بناء جديد
         </Button>
       </div>
 
-      {/* البحث */}
       <Form.Group className="mb-3">
         <Form.Label className="fw-bold">بحث</Form.Label>
         <Form.Control
@@ -66,7 +99,6 @@ export default function BuildingList() {
         />
       </Form.Group>
 
-      {/* جدول الأبنية */}
       <Table striped bordered hover responsive>
         <thead>
           <tr>
@@ -109,108 +141,297 @@ export default function BuildingList() {
       </Table>
 
       {/* نافذة التعديل */}
-    <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
-  <Modal.Header closeButton>
-    <Modal.Title>تعديل معلومات البناء</Modal.Title>
-  </Modal.Header>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>تعديل معلومات البناء</Modal.Title>
+        </Modal.Header>
 
-  <Modal.Body>
-    {editingBuilding && (
-      <Form>
+        <Modal.Body>
+          {editingBuilding && (
+            <Form>
+              {/* اسم البناء */}
+              <Form.Group className="mb-3">
+                <Form.Label>اسم البناء</Form.Label>
+                <Form.Control
+                  value={editingBuilding.name}
+                  onChange={(e) =>
+                    setEditingBuilding({ ...editingBuilding, name: e.target.value })
+                  }
+                />
+              </Form.Group>
 
-        {/* اسم البناء */}
-        <Form.Group className="mb-3">
-          <Form.Label>اسم البناء</Form.Label>
-          <Form.Control
-            value={editingBuilding.name}
-            onChange={(e) =>
-              setEditingBuilding({ ...editingBuilding, name: e.target.value })
-            }
-          />
-        </Form.Group>
+              {/* البحث عن الموقع */}
+              <Form.Group className="mb-3">
+                <Form.Label>ابحث عن الموقع</Form.Label>
+                <Row>
+                  <Col md={9}>
+                    <Form.Control
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="أدخل اسم شارع أو مدينة..."
+                    />
+                  </Col>
+                  <Col md={3}>
+                    <Button variant="primary" onClick={handleSearch}>
+                      بحث
+                    </Button>
+                  </Col>
+                </Row>
+              </Form.Group>
 
-        {/* الخريطة */}
-        <Form.Group className="mb-3">
-          <Form.Label>الخريطة</Form.Label>
-          <Form.Control
-            value={editingBuilding.map || ""}
-            onChange={(e) =>
-              setEditingBuilding({ ...editingBuilding, map: e.target.value })
-            }
-          />
-        </Form.Group>
+              {/* الخريطة */}
+              <Form.Group className="mb-3">
+                <Form.Label>الخريطة</Form.Label>
+                <MapContainer
+                  center={mapPosition}
+                  zoom={13}
+                  style={{ height: "300px", width: "100%" }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  <LocationPicker position={mapPosition} setPosition={setMapPosition} />
+                </MapContainer>
+              </Form.Group>
 
-        {/* الملكية */}
-        <Form.Group className="mb-3">
-          <Form.Label>الملكية</Form.Label>
-          <Form.Select
-            value={editingBuilding.ownership}
-            onChange={(e) =>
-              setEditingBuilding({ ...editingBuilding, ownership: e.target.value })
-            }
+              {/* الملكية */}
+              <Form.Group className="mb-3">
+                <Form.Label>الملكية</Form.Label>
+                <Form.Select
+                  value={editingBuilding.ownership}
+                  onChange={(e) =>
+                    setEditingBuilding({ ...editingBuilding, ownership: e.target.value })
+                  }
+                >
+                  <option value="بناء حكومي">بناء حكومي</option>
+                  <option value="إيجار">إيجار</option>
+                  <option value="أخرى">أخرى</option>
+                </Form.Select>
+              </Form.Group>
+
+              {editingBuilding.ownership === "أخرى" && (
+                <Form.Group className="mb-3">
+                  <Form.Label>نوع الملكية الأخرى</Form.Label>
+                  <Form.Control
+                    value={editingBuilding.otherOwnership || ""}
+                    onChange={(e) =>
+                      setEditingBuilding({
+                        ...editingBuilding,
+                        otherOwnership: e.target.value,
+                      })
+                    }
+                  />
+                </Form.Group>
+              )}
+
+              {/* الكلفة */}
+              {editingBuilding.ownership !== "بناء حكومي" && (
+                <Form.Group className="mb-3">
+                  <Form.Label>الكلفة</Form.Label>
+                  <Row>
+                    <Col md={8}>
+                      <Form.Control
+                        type="number"
+                        value={editingBuilding.cost || ""}
+                        onChange={(e) =>
+                          setEditingBuilding({ ...editingBuilding, cost: e.target.value })
+                        }
+                      />
+                    </Col>
+                    <Col md={4}>
+                      <Form.Select
+                        value={editingBuilding.currency || "دولار"}
+                        onChange={(e) =>
+                          setEditingBuilding({ ...editingBuilding, currency: e.target.value })
+                        }
+                      >
+                        <option value="دولار">دولار</option>
+                        <option value="ليرة سورية">ليرة سورية</option>
+                      </Form.Select>
+                    </Col>
+                  </Row>
+                </Form.Group>
+              )}
+              {/* الطوابق */}
+              <Form.Group className="mb-3">
+                <Form.Label>عدد الطوابق</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={editingBuilding.floors || ""}
+                  onChange={(e) =>
+                    setEditingBuilding({ ...editingBuilding, floors: e.target.value })
+                  }
+                />
+              </Form.Group>
+
+              {/* المكاتب */}
+              <Form.Group className="mb-3">
+                <Form.Label>عدد المكاتب</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={editingBuilding.offices || ""}
+                  onChange={(e) =>
+                    setEditingBuilding({ ...editingBuilding, offices: e.target.value })
+                  }
+                />
+              </Form.Group>
+
+              {/* السعة */}
+              <Form.Group className="mb-3">
+                <Form.Label>السعة</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={editingBuilding.capacity || ""}
+                  onChange={(e) =>
+                    setEditingBuilding({ ...editingBuilding, capacity: e.target.value })
+                  }
+                />
+              </Form.Group>
+
+              {/* المساحة */}
+              <Form.Group className="mb-3">
+                <Form.Label>المساحة</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={editingBuilding.area || ""}
+                  onChange={(e) =>
+                    setEditingBuilding({ ...editingBuilding, area: e.target.value })
+                  }
+                />
+              </Form.Group>
+
+              {/* تاريخ البناء */}
+              <Form.Group className="mb-3">
+                <Form.Label>تاريخ البناء</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={editingBuilding.buildingDate || ""}
+                  onChange={(e) =>
+                    setEditingBuilding({ ...editingBuilding, buildingDate: e.target.value })
+                  }
+                />
+              </Form.Group>
+
+              {/* الحالة الإنشائية */}
+              <Form.Group className="mb-3">
+                <Form.Label>الحالة الإنشائية</Form.Label>
+                <Form.Select
+                  value={editingBuilding.structuralCondition || ""}
+                  onChange={(e) =>
+                    setEditingBuilding({
+                      ...editingBuilding,
+                      structuralCondition: e.target.value,
+                    })
+                  }
+                >
+                  <option value="جيد جدا">جيد جدا</option>
+                  <option value="مرمم حديثا">مرمم حديثا</option>
+                  <option value="بحاجة ترميم جزئي">بحاجة ترميم جزئي</option>
+                  <option value="بحاجة ترميم كلي">بحاجة ترميم كلي</option>
+                </Form.Select>
+              </Form.Group>
+
+              {/* مستوى الخطورة */}
+              {(editingBuilding.structuralCondition === "بحاجة ترميم جزئي" ||
+                editingBuilding.structuralCondition === "بحاجة ترميم كلي") && (
+                <Form.Group className="mb-3">
+                  <Form.Label>مستوى الخطورة (%)</Form.Label>
+                  <Form.Control
+                    type="number"
+                    value={editingBuilding.riskLevel || ""}
+                    onChange={(e) =>
+                      setEditingBuilding({
+                        ...editingBuilding,
+                        riskLevel: e.target.value,
+                      })
+                    }
+                  />
+                </Form.Group>
+              )}
+
+              {/* تاريخ الترميم */}
+              {editingBuilding.structuralCondition !== "جيد جدا" && (
+                <Form.Group className="mb-3">
+                  <Form.Label>تاريخ الترميم</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={editingBuilding.restorationDate || ""}
+                    onChange={(e) =>
+                      setEditingBuilding({
+                        ...editingBuilding,
+                        restorationDate: e.target.value,
+                      })
+                    }
+                  />
+                </Form.Group>
+              )}
+
+              {/* تفاصيل الترميم */}
+              {editingBuilding.structuralCondition === "مرمم حديثا" && (
+                <Form.Group className="mb-3">
+                  <Form.Label>تفاصيل الترميم</Form.Label>
+                  <Form.Control
+                    value={editingBuilding.restorationDetails || ""}
+                    onChange={(e) =>
+                      setEditingBuilding({
+                        ...editingBuilding,
+                        restorationDetails: e.target.value,
+                      })
+                    }
+                  />
+                </Form.Group>
+              )}
+
+              {/* نظام إنذار الحريق */}
+              <Form.Group className="mb-3">
+                <Form.Label>نظام إنذار الحريق</Form.Label>
+                <Form.Select
+                  value={editingBuilding.fireAlarmSystem || ""}
+                  onChange={(e) =>
+                    setEditingBuilding({
+                      ...editingBuilding,
+                      fireAlarmSystem: e.target.value,
+                    })
+                  }
+                >
+                  <option value="نعم">نعم</option>
+                  <option value="لا">لا</option>
+                </Form.Select>
+              </Form.Group>
+
+              {/* نظام البصمة */}
+              <Form.Group className="mb-3">
+                <Form.Label>نظام البصمة</Form.Label>
+                <Form.Select
+                  value={editingBuilding.fingerprintSystem || ""}
+                  onChange={(e) =>
+                    setEditingBuilding({
+                      ...editingBuilding,
+                      fingerprintSystem: e.target.value,
+                    })
+                  }
+                >
+                  <option value="نعم">نعم</option>
+                  <option value="لا">لا</option>
+                </Form.Select>
+              </Form.Group>
+            </Form>
+          )}
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            إلغاء
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setEditingBuilding({ ...editingBuilding, mapPosition });
+              handleSaveEdit();
+            }}
           >
-            <option value="بناء حكومي">بناء حكومي</option>
-            <option value="إيجار">إيجار</option>
-            <option value="أخرى">أخرى</option>
-          </Form.Select>
-        </Form.Group>
-
-        {editingBuilding.ownership === "أخرى" && (
-          <Form.Group className="mb-3">
-            <Form.Label>نوع الملكية الأخرى</Form.Label>
-            <Form.Control
-              value={editingBuilding.otherOwnership || ""}
-              onChange={(e) =>
-                setEditingBuilding({
-                  ...editingBuilding,
-                  otherOwnership: e.target.value,
-                })
-              }
-            />
-          </Form.Group>
-        )}
-
-        {/* الكلفة (تظهر فقط إذا لم يكن بناء حكومي) */}
-        {editingBuilding.ownership !== "بناء حكومي" && (
-          <Form.Group className="mb-3">
-            <Form.Label>الكلفة</Form.Label>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <Form.Control
-                type="number"
-                value={editingBuilding.cost || ""}
-                onChange={(e) =>
-                  setEditingBuilding({ ...editingBuilding, cost: e.target.value })
-                }
-              />
-              <Form.Select
-                value={editingBuilding.currency || "دولار"}
-                onChange={(e) =>
-                  setEditingBuilding({ ...editingBuilding, currency: e.target.value })
-                }
-              >
-                <option value="دولار">دولار</option>
-                <option value="ليرة سورية">ليرة سورية</option>
-              </Form.Select>
-            </div>
-          </Form.Group>
-        )}
-
-        {/* باقي الحقول كما هي (الطوابق، المكاتب، السعة، المساحة، إلخ) */}
-
-      </Form>
-    )}
-  </Modal.Body>
-
-  <Modal.Footer>
-    <Button variant="secondary" onClick={() => setShowModal(false)}>
-      إلغاء
-    </Button>
-    <Button variant="primary" onClick={handleSaveEdit}>
-      حفظ التعديلات
-    </Button>
-  </Modal.Footer>
-</Modal>
-
-    </div>
-  );
-}
+            حفظ التعديلات
+          </Button>
+        </Modal.Footer>
+      </Modal>
