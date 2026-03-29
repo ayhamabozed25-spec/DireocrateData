@@ -10,11 +10,12 @@ import CarsForm from "./components/CarsForm";
 import FurnitureForm from "./components/FurnitureForm";
 import ProjectsForm from "./components/ProjectsForm";
 import ProjectChallengesForm from "./components/ProjectChallengesForm";
-import ServicesForm from "./components/ServicesForm";
 import StrengthsWeaknessesForm from "./components/StrengthsWeaknessesForm";
 import Search from "./components/Search";
 import BuildingForm from "./components/BuildingForm";
 import "leaflet/dist/leaflet.css";
+import AddService from "./components/AddService";
+import ServicesList from "./components/ServicesList";
 
 function App() {
   return (
@@ -53,7 +54,7 @@ function App() {
           <Route path="/furniture" element={<FurnitureForm />} />
           <Route path="/projects" element={<ProjectsForm />} />
           <Route path="/project-challenges" element={<ProjectChallengesForm />} />
-          <Route path="/services" element={<ServicesForm />} />
+          <Route path="/services" element={<ServicesList />} />
           <Route path="/swot" element={<StrengthsWeaknessesForm />} />
           <Route path="/search" element={<Search />} />
         </Routes>
