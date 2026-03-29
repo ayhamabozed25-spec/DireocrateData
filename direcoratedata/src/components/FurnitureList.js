@@ -183,19 +183,7 @@ export default function FurnitureList() {
                 </Form.Group>
               )}
 
-              {/* الكلفة */}
-              {editingItem.need === "متوفر" && (
-                <Form.Group className="mb-3">
-                  <Form.Label>الكلفة للوحدة</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={editingItem.costPerUnit || ""}
-                    onChange={(e) =>
-                      setEditingItem({ ...editingItem, costPerUnit: e.target.value })
-                    }
-                  />
-                </Form.Group>
-              )}
+        
 
               {/* الحالة */}
               {editingItem.need === "متوفر" && (
