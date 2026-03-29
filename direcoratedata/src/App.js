@@ -14,6 +14,7 @@ import ServicesForm from "./components/ServicesForm";
 import StrengthsWeaknessesForm from "./components/StrengthsWeaknessesForm";
 import Search from "./components/Search";
 import BuildingForm from "./components/BuildingForm";
+import "leaflet/dist/leaflet.css";
 
 function App() {
   return (
