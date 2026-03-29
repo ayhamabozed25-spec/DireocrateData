@@ -10,12 +10,12 @@ import CarsForm from "./components/CarsForm";
 import FurnitureForm from "./components/FurnitureForm";
 import ProjectsForm from "./components/ProjectsForm";
 import ProjectChallengesForm from "./components/ProjectChallengesForm";
-import StrengthsWeaknessesForm from "./components/StrengthsWeaknessesForm";
-import Search from "./components/Search";
 import BuildingForm from "./components/BuildingForm";
 import "leaflet/dist/leaflet.css";
 import AddService from "./components/AddService";
 import ServicesList from "./components/ServicesList";
+import AddSwot from "./components/AddSwot";
+import SwotList from "./components/SwotList";
 
 function App() {
   return (
@@ -38,7 +38,7 @@ function App() {
               <Nav.Link as={Link} to="/services">الخدمات</Nav.Link>
                <Nav.Link as={Link} to="/add">اضافة خدمة</Nav.Link>
               <Nav.Link as={Link} to="/swot">SWOT</Nav.Link>
-              <Nav.Link as={Link} to="/search">البحث</Nav.Link>
+            
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -57,8 +57,9 @@ function App() {
           <Route path="/project-challenges" element={<ProjectChallengesForm />} />
           <Route path="/services" element={<ServicesList />} />
           <Route path="/add" element={<AddService />} />
-          <Route path="/swot" element={<StrengthsWeaknessesForm />} />
-          <Route path="/search" element={<Search />} />
+           <Route path="/swot" element={<SwotList />} />
+          <Route path="/add-swot" element={<AddSwot />} />
+
         </Routes>
       </Container>
     </Router>
