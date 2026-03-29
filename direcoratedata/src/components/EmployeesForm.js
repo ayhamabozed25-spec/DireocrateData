@@ -481,7 +481,7 @@ const universitiesOptions = {
           <Form.Group><Form.Label>تخصص آخر</Form.Label><Form.Control name="otherSpecialization" required /></Form.Group>
         )}
 
-        <Form.Group>
+{ (qualification === "دراسات عليا" || qualification === "جامعة 5 سنوات" || qualification === "جامعة 4 سنوات" || qualification === "معهد" || qualification === "ثانوي") &&  (<Form.Group>
           <Form.Label>طالب / متخرج</Form.Label>
           <Form.Select name="IsStudent" required>
             <option value="">اختر</option>
@@ -489,7 +489,7 @@ const universitiesOptions = {
             <option value="حاصل على الشهادة">حاصل على الشهادة</option>
           </Form.Select>
         </Form.Group>
-
+)}
 
         {(need === "متوفر" && IsStudent === "حاصل على الشهادة") && ( <Form.Group><Form.Label>تاريخ الحصول على الشهادة</Form.Label><Form.Control type="date" name="certificateDate" required /></Form.Group>)}
 
