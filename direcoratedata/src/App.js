@@ -2,7 +2,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
 
-import DivisionsForm from "./components/DivisionsForm";
 import EmployeesForm from "./components/EmployeesForm";
 import DevicesForm from "./components/DevicesForm";
 import CarsForm from "./components/CarsForm";
@@ -18,6 +17,8 @@ import AddSwot from "./components/AddSwot";
 import SwotList from "./components/SwotList";
 import DepartmentsList from "./components/DepartmentsList";
 import AddDepartment from "./components/AddDepartment";
+import DivisionsList from "./components/DivisionsList";
+import AddDivision from "./components/AddDivision";
 
 function App() {
   return (
@@ -51,7 +52,8 @@ function App() {
           <Route path="/add-building" element={<AddBuilding />} />
           <Route path="/departments" element={<DepartmentsList />} />
           <Route path="/add-department" element={<AddDepartment />} />
-          <Route path="/divisions" element={<DivisionsForm />} />
+            <Route path="/divisions" element={<DivisionsList />} />
+          <Route path="/add-division" element={<AddDivision />} />
           <Route path="/employees" element={<EmployeesForm />} />
           <Route path="/devices" element={<DevicesForm />} />
           <Route path="/cars" element={<CarsForm />} />
