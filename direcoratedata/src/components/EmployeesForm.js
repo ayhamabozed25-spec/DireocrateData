@@ -368,7 +368,7 @@ const universitiesOptions = {
           </Form.Select>
         </Form.Group>
 
-     {need === "متوفر" && (  <Form.Group><Form.Label>اسم الموظف</Form.Label><Form.Control name="name" required /></Form.Group>
+     {need === "متوفر" && (  <Form.Group><Form.Label>اسم الموظف</Form.Label><Form.Control name="name" required /></Form.Group>)}
 
         <Form.Group>
           <Form.Label>الجنس</Form.Label>
@@ -378,7 +378,7 @@ const universitiesOptions = {
             <option value="أنثى">أنثى</option>
           </Form.Select>
         </Form.Group>
-    )}
+    
         <Form.Group><Form.Label>العمر</Form.Label><Form.Control type="number" name="age" min="15" max="80" required /></Form.Group>
 
         {need === "متوفر" && (
