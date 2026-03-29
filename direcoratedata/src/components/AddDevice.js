@@ -26,24 +26,34 @@ export default function AddDevice() {
     fetchEmployees();
   }, []);
 
+  const brandOptions = {
+    "لاب توب": ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple", "أخرى"],
+    "سيرفر": ["Dell", "HP", "IBM", "Cisco", "Supermicro", "أخرى"],
+    "حاسوب مكتبي": ["Dell", "HP", "Lenovo", "Asus", "MSI", "أخرى"],
+    "تاب": ["Samsung", "Apple", "Huawei", "Lenovo", "أخرى"],
+    "طابعة": ["Canon", "HP", "Epson", "Brother", "أخرى"],
+    "راوتر": ["Cisco", "TP-Link", "Netgear", "Huawei", "أخرى"],
+    "أخرى": ["أخرى"]
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     await addDoc(collection(db, "devices"), {
       need,
       type: deviceType === "أخرى" ? e.target.otherType?.value : deviceType,
+      brand: brand === "أخرى" ? e.target.otherBrand?.value : brand,
       processor: processor === "أخرى" ? e.target.otherProcessor?.value : processor,
       ram: e.target.ram?.value || null,
-      description: e.target.description?.value || null,
-      notes: e.target.notes?.value || null,
-      cost: `${e.target.cost.value} ${costCurrency}`,
-      brand: need === "متوفر" ? brand : null,
       employee: need === "متوفر" ? e.target.employee?.value : null,
       purchaseDate: need === "متوفر" ? e.target.purchaseDate?.value : null,
+      cost: need === "متوفر" ? `${e.target.cost.value} ${costCurrency}` : null,
       status: need === "متوفر" ? status : null,
       breakdown: status === "معطل" ? e.target.breakdown?.value : null,
       effect: (status === "معطل" || status === "يعمل بأداء ضعيف") ? e.target.effect?.value : null,
       priority: status === "معطل" ? e.target.priority?.value : null,
+      description: e.target.description?.value || null,
+      notes: e.target.notes?.value || null,
     });
 
     alert("تم حفظ الجهاز بنجاح");
@@ -72,29 +82,25 @@ export default function AddDevice() {
         </Form.Group>
 
         {/* نوع الجهاز */}
-        {(need === "مطلوب" || need === "متوفر") && (
-          <>
-            <Form.Group>
-              <Form.Label>نوع الجهاز</Form.Label>
-              <Form.Select value={deviceType} onChange={(e) => setDeviceType(e.target.value)} required>
-                <option value="">اختر</option>
-                <option value="لاب توب">لاب توب</option>
-                <option value="سيرفر">سيرفر</option>
-                <option value="حاسوب مكتبي">حاسوب مكتبي</option>
-                <option value="تاب">تاب</option>
-                <option value="طابعة">طابعة</option>
-                <option value="راوتر">راوتر</option>
-                <option value="أخرى">أخرى</option>
-              </Form.Select>
-            </Form.Group>
+        <Form.Group>
+          <Form.Label>نوع الجهاز</Form.Label>
+          <Form.Select value={deviceType} onChange={(e) => setDeviceType(e.target.value)} required>
+            <option value="">اختر</option>
+            <option value="لاب توب">لاب توب</option>
+            <option value="سيرفر">سيرفر</option>
+            <option value="حاسوب مكتبي">حاسوب مكتبي</option>
+            <option value="تاب">تاب</option>
+            <option value="طابعة">طابعة</option>
+            <option value="راوتر">راوتر</option>
+            <option value="أخرى">أخرى</option>
+          </Form.Select>
+        </Form.Group>
 
-            {deviceType === "أخرى" && (
-              <Form.Group>
-                <Form.Label>نوع آخر</Form.Label>
-                <Form.Control name="otherType" required />
-              </Form.Group>
-            )}
-          </>
+        {deviceType === "أخرى" && (
+          <Form.Group>
+            <Form.Label>نوع آخر</Form.Label>
+            <Form.Control name="otherType" required />
+          </Form.Group>
         )}
 
         {/* المعالج */}
@@ -152,22 +158,97 @@ export default function AddDevice() {
           <Form.Control name="notes" />
         </Form.Group>
 
-        {/* الكلفة */}
-        <Row className="mt-3">
-          <Col md={8}>
-            <Form.Label>الكلفة *</Form.Label>
-            <Form.Control type="number" step="0.01" name="cost" required />
-          </Col>
-          <Col md={4}>
-            <Form.Label>العملة</Form.Label>
-            <Form.Select value={costCurrency} onChange={(e) => setCostCurrency(e.target.value)}>
-              <option value="USD">دولار</option>
-              <option value="SYP">ليرة سورية</option>
-            </Form.Select>
-          </Col>
-        </Row>
+        {/* الحقول التي تظهر فقط عند اختيار متوفر */}
+        {need === "متوفر" && (
+          <>
+            {/* البراند */}
+            <Form.Group>
+              <Form.Label>البراند</Form.Label>
+              <Form.Select value={brand} onChange={(e) => setBrand(e.target.value)} required>
+                <option value="">اختر</option>
+                {brandOptions[deviceType]?.map((b, i) => (
+                  <option key={i} value={b}>{b}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
 
-        <Button type="submit" className="mt-4 w-100">حفظ الجهاز</Button>
+            {brand === "أخرى" && (
+              <Form.Group>
+                <Form.Label>براند آخر</Form.Label>
+                <Form.Control name="otherBrand" required />
+              </Form.Group>
+            )}
+
+            {/* تاريخ الشراء */}
+            <Form.Group>
+              <Form.Label>تاريخ الشراء</Form.Label>
+              <Form.Control type="date" name="purchaseDate" required />
+            </Form.Group>
+
+            {/* الموظف المستلم */}
+            <Form.Group>
+              <Form.Label>الموظف المستلم</Form.Label>
+              <Select
+                options={employees}
+                name="employee"
+                placeholder="اختر الموظف"
+                isSearchable
+                required
+              />
+            </Form.Group>
+
+            {/* الحالة */}
+            <Form.Group>
+              <Form.Label>الحالة</Form.Label>
+              <Form.Select value={status} onChange={(e) => setStatus(e.target.value)} required>
+                <option value="">اختر</option>
+                <option value="يعمل بشكل جيد">يعمل بشكل جيد</option>
+                <option value="يعمل بأداء ضعيف">يعمل بأداء ضعيف</option>
+                <option value="معطل">معطل</option>
+              </Form.Select>
+            </Form.Group>
+
+            {/* وصف العطل */}
+            {status === "معطل" && (
+              <>
+                <Form.Group>
+                  <Form.Label>وصف العطل</Form.Label>
+                  <Form.Control name="breakdown" required />
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label>أولوية الإصلاح (1-5)</Form.Label>
+                  <Form.Control type="number" min="1" max="5" name="priority" required />
+                </Form.Group>
+              </>
+            )}
+
+            {/* التأثير */}
+            {(status === "معطل" || status === "يعمل بأداء ضعيف") && (
+              <Form.Group>
+                <Form.Label>التأثير على الخدمة (%)</Form.Label>
+                <Form.Control type="number" name="effect" required />
+              </Form.Group>
+            )}
+
+            {/* الكلفة */}
+            <Row className="mt-3">
+              <Col md={8}>
+                <Form.Label>الكلفة *</Form.Label>
+                <Form.Control type="number" step="0.01" name="cost" required />
+              </Col>
+              <Col md={4}>
+                <Form.Label>العملة</Form.Label>
+                <Form.Select value={costCurrency} onChange={(e) => setCostCurrency(e.target.value)}>
+                  <option value="USD">دولار</option>
+                  <option value="SYP">ليرة سورية</option>
+                </Form.Select>
+              </Col>
+            </Row>
+          </>
+        )}
+
+        <Button type="submit" className="mt-3">حفظ الجهاز</Button>
       </Form>
     </div>
   );
