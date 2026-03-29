@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, Table, Modal, Row, Col, Badge } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 export default function SwotList() {
   const [items, setItems] = useState([]);
@@ -10,6 +11,8 @@ export default function SwotList() {
 
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+
+  const navigate = useNavigate(); // ← مهم جداً
 
   const loadItems = async () => {
     const snapshot = await getDocs(collection(db, "swot"));
@@ -54,7 +57,7 @@ export default function SwotList() {
 
       {/* زر إضافة */}
       <div className="d-flex justify-content-end mb-3">
-        <Button variant="primary" onClick={() => (window.location.href = "/add-swot")}>
+        <Button variant="primary" onClick={() => navigate("/add-swot")}>
           إضافة عنصر جديد
         </Button>
       </div>
@@ -98,21 +101,36 @@ export default function SwotList() {
           {filteredItems.map((item) => (
             <tr key={item.id}>
               <td>
-                <Badge bg={
-                  item.type === "قوة" ? "success" :
-                  item.type === "ضعف" ? "danger" :
-                  item.type === "فرصة" ? "info" : "warning"
-                }>
+                <Badge
+                  bg={
+                    item.type === "قوة"
+                      ? "success"
+                      : item.type === "ضعف"
+                      ? "danger"
+                      : item.type === "فرصة"
+                      ? "info"
+                      : "warning"
+                  }
+                >
                   {item.type}
                 </Badge>
               </td>
               <td>{item.description}</td>
               <td>{item.priority}</td>
               <td>
-                <Button size="sm" variant="warning" className="me-2" onClick={() => handleEdit(item)}>
+                <Button
+                  size="sm"
+                  variant="warning"
+                  className="me-2"
+                  onClick={() => handleEdit(item)}
+                >
                   تعديل
                 </Button>
-                <Button size="sm" variant="danger" onClick={() => handleDelete(item.id)}>
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={() => handleDelete(item.id)}
+                >
                   حذف
                 </Button>
               </td>
@@ -134,7 +152,9 @@ export default function SwotList() {
                 <Form.Label>النوع</Form.Label>
                 <Form.Select
                   value={editingItem.type}
-                  onChange={(e) => setEditingItem({ ...editingItem, type: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, type: e.target.value })
+                  }
                 >
                   <option value="قوة">قوة</option>
                   <option value="ضعف">ضعف</option>
@@ -147,7 +167,9 @@ export default function SwotList() {
                 <Form.Label>الوصف</Form.Label>
                 <Form.Control
                   value={editingItem.description}
-                  onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, description: e.target.value })
+                  }
                 />
               </Form.Group>
 
@@ -158,7 +180,9 @@ export default function SwotList() {
                   min="1"
                   max="5"
                   value={editingItem.priority}
-                  onChange={(e) => setEditingItem({ ...editingItem, priority: e.target.value })}
+                  onChange={(e) =>
+                    setEditingItem({ ...editingItem, priority: e.target.value })
+                  }
                 />
               </Form.Group>
             </>
