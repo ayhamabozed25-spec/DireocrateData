@@ -3,6 +3,14 @@ import { db } from "../firebase";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import { useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
+import L from "leaflet";
+
+// أيقونة مخصصة للماركر
+const customIcon = L.icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png", // صورة دبوس أحمر
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+});
 
 export default function AddBuilding() {
   const [ownership, setOwnership] = useState("");
@@ -63,13 +71,13 @@ export default function AddBuilding() {
         setLocation(e.latlng);
       },
     });
-    return location ? <Marker position={location} /> : null;
+    return location ? <Marker position={location} icon={customIcon} /> : null;
   }
 
   function MapController({ coords }) {
     const map = useMap();
     if (coords) {
-      map.setView(coords, 15);
+      map.setView(coords, 15); // الانتقال إلى الموقع الجديد
     }
     return null;
   }
@@ -243,14 +251,14 @@ export default function AddBuilding() {
           </Row>
         </Form.Group>
 
-        <MapContainer
+              <MapContainer
           center={[35.523, 35.791]}
           zoom={13}
           style={{ height: "300px", width: "100%" }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <LocationPicker />
-          {location && <Marker position={location} />}
+          {location && <Marker position={location} icon={customIcon} />}
           <MapController coords={location} />
         </MapContainer>
 
