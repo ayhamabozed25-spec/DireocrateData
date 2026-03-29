@@ -1,37 +1,11 @@
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, Row, Col } from "react-bootstrap";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import MapPicker from "./MapPicker";
 
-export default function ProjectsForm() {
+export default function AddProject() {
   const [location, setLocation] = useState(null);
-
-  // البحث
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-
-  // تنفيذ البحث عند تغيير النص
-  useEffect(() => {
-    const fetchProjects = async () => {
-      if (searchTerm.trim() === "") {
-        setSearchResults([]);
-        return;
-      }
-
-      const snapshot = await getDocs(collection(db, "projects"));
-      const filtered = snapshot.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((project) =>
-          project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          project.details.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-
-      setSearchResults(filtered);
-    };
-
-    fetchProjects();
-  }, [searchTerm]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,34 +36,6 @@ export default function ProjectsForm() {
   return (
     <Form onSubmit={handleSubmit} className="p-3">
 
-      {/* حقل البحث */}
-      <Form.Group className="mb-4">
-        <Form.Label className="fw-bold">🔎 البحث في المشاريع السابقة</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="أدخل اسم المشروع أو كلمة مفتاحية"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Form.Group>
-
-      {/* نتائج البحث */}
-      {searchResults.length > 0 && (
-        <div className="mb-4">
-          <h5 className="text-primary">نتائج البحث:</h5>
-          <ul className="list-group shadow-sm">
-            {searchResults.map((project) => (
-              <li key={project.id} className="list-group-item">
-                <strong>{project.name}</strong>
-                <br />
-                <small className="text-muted">{project.details}</small>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* باقي النموذج */}
       <Form.Group className="mb-3">
         <Form.Label>اسم المشروع</Form.Label>
         <Form.Control name="name" required />
