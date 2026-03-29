@@ -375,8 +375,7 @@ export default function DevicesList() {
             )}
 
             {/* الكلفة + العملة */}
-                    <Row className="mt-3">
-          <Col md={8}>
+  
             <Form.Label>الكلفة *</Form.Label>
             <Form.Control
               type="number"
@@ -387,8 +386,7 @@ export default function DevicesList() {
               }
               required
             />
-          </Col>
-          <Col md={4}>
+        
             <Form.Label>العملة</Form.Label>
             <Form.Select
               value={editingDevice.currency || "USD"}
