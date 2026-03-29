@@ -64,7 +64,7 @@ export default function EmployeesForm() {
       university: university === "أخرى" ? e.target.otherUniversity.value : university,
       specialization: specialization === "أخرى" ? e.target.otherSpecialization.value : specialization,
       certificateSource: e.target.certificateSource.value,
-      certificateDate: e.target.certificateDate.value,
+      IsStudent: e.target.IsStudent.value,
       contract: e.target.contract.value,
       jobTitle,
       otherJobTitle: jobTitle === "أخرى" ? (e.target.otherJobTitle?.value || null) : null,
