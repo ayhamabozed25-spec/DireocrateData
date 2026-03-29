@@ -1,13 +1,11 @@
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
-import { Form, Button, Card, InputGroup, ListGroup } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import Select from "react-select";
 
-export default function DevicesForm() {
+export default function AddDevice() {
   const [employees, setEmployees] = useState([]);
-  const [devices, setDevices] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
 
   const [need, setNeed] = useState("");
   const [deviceType, setDeviceType] = useState("");
@@ -27,13 +25,15 @@ export default function DevicesForm() {
     fetchEmployees();
   }, []);
 
-  useEffect(() => {
-    const fetchDevices = async () => {
-      const snapshot = await getDocs(collection(db, "devices"));
-      setDevices(snapshot.docs.map(doc => doc.data()));
-    };
-    fetchDevices();
-  }, []);
+  const brandOptions = {
+    "لاب توب": ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple", "أخرى"],
+    "سيرفر": ["Dell", "HP", "IBM", "Cisco", "Supermicro", "أخرى"],
+    "حاسوب مكتبي": ["Dell", "HP", "Lenovo", "Asus", "MSI", "أخرى"],
+    "تاب": ["Samsung", "Apple", "Huawei", "Lenovo", "أخرى"],
+    "طابعة": ["Canon", "HP", "Epson", "Brother", "أخرى"],
+    "راوتر": ["Cisco", "TP-Link", "Netgear", "Huawei", "أخرى"],
+    "أخرى": ["أخرى"]
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,7 +56,7 @@ export default function DevicesForm() {
       notes: e.target.notes.value || null,
     });
 
-    alert("تم حفظ الجهاز ✅");
+    alert("تم حفظ الجهاز بنجاح");
     e.target.reset();
     setNeed("");
     setDeviceType("");
@@ -65,54 +65,13 @@ export default function DevicesForm() {
     setProcessor("");
   };
 
-  const filteredDevices = devices.filter(dev =>
-    dev.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dev.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dev.model?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const brandOptions = {
-    "لاب توب": ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple", "أخرى"],
-    "سيرفر": ["Dell", "HP", "IBM", "Cisco", "Supermicro", "أخرى"],
-    "حاسوب مكتبي": ["Dell", "HP", "Lenovo", "Asus", "MSI", "أخرى"],
-    "تاب": ["Samsung", "Apple", "Huawei", "Lenovo", "أخرى"],
-    "طابعة": ["Canon", "HP", "Epson", "Brother", "أخرى"],
-    "راوتر": ["Cisco", "TP-Link", "Netgear", "Huawei", "أخرى"],
-    "أخرى": ["أخرى"]
-  };
-
   return (
     <div className="p-3">
       <h3>إضافة جهاز جديد</h3>
 
-      {/* بطاقة البحث */}
-      <Card className="mb-4 shadow-sm">
-        <Card.Body>
-          <Card.Title>🔍 البحث عن جهاز</Card.Title>
-          <InputGroup>
-            <Form.Control
-              type="text"
-              placeholder="أدخل نوع الجهاز أو الشركة أو الموديل"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Button variant="primary">بحث</Button>
-          </InputGroup>
-
-          {searchTerm && (
-            <ListGroup className="mt-3">
-              {filteredDevices.map((dev, index) => (
-                <ListGroup.Item key={index}>
-                  {dev.type} - {dev.brand} - {dev.model} - الموظف: {dev.employee}
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          )}
-        </Card.Body>
-      </Card>
-
-      {/* النموذج */}
       <Form onSubmit={handleSubmit}>
+
+        {/* الحاجة */}
         <Form.Group>
           <Form.Label>الحاجة</Form.Label>
           <Form.Select value={need} onChange={(e) => setNeed(e.target.value)} required>
@@ -122,6 +81,7 @@ export default function DevicesForm() {
           </Form.Select>
         </Form.Group>
 
+        {/* نوع الجهاز */}
         <Form.Group>
           <Form.Label>نوع الجهاز</Form.Label>
           <Form.Select value={deviceType} onChange={(e) => setDeviceType(e.target.value)} required>
@@ -135,12 +95,18 @@ export default function DevicesForm() {
             <option value="أخرى">أخرى</option>
           </Form.Select>
         </Form.Group>
+
         {deviceType === "أخرى" && (
-          <Form.Group><Form.Label>نوع آخر</Form.Label><Form.Control name="otherType" required /></Form.Group>
+          <Form.Group>
+            <Form.Label>نوع آخر</Form.Label>
+            <Form.Control name="otherType" required />
+          </Form.Group>
         )}
 
+        {/* إذا كان الجهاز متوفر */}
         {need === "متوفر" && deviceType && (
           <>
+            {/* البراند */}
             <Form.Group>
               <Form.Label>البراند</Form.Label>
               <Form.Select value={brand} onChange={(e) => setBrand(e.target.value)} required>
@@ -150,32 +116,47 @@ export default function DevicesForm() {
                 ))}
               </Form.Select>
             </Form.Group>
+
             {brand === "أخرى" && (
-              <Form.Group><Form.Label>براند آخر</Form.Label><Form.Control name="otherBrand" required /></Form.Group>
+              <Form.Group>
+                <Form.Label>براند آخر</Form.Label>
+                <Form.Control name="otherBrand" required />
+              </Form.Group>
             )}
 
-            <Form.Group><Form.Label>الموديل</Form.Label><Form.Control name="model" required /></Form.Group>
-    {(deviceType === "لاب توب" || deviceType === "سيرفر" || deviceType === "حاسوب مكتبي") && (
+            {/* الموديل */}
             <Form.Group>
-              <Form.Label>المعالج</Form.Label>
-              <Form.Select value={processor} onChange={(e) => setProcessor(e.target.value)} required>
-                <option value="">اختر</option>
-                <option value="Intel i3">Intel i3</option>
-                <option value="Intel i5">Intel i5</option>
-                <option value="Intel i7">Intel i7</option>
-                <option value="Intel i9">Intel i9</option>
-                <option value="AMD Ryzen 3">AMD Ryzen 3</option>
-                <option value="AMD Ryzen 5">AMD Ryzen 5</option>
-                <option value="AMD Ryzen 7">AMD Ryzen 7</option>
-                <option value="AMD Ryzen 9">AMD Ryzen 9</option>
-                <option value="أخرى">أخرى</option>
-              </Form.Select>
+              <Form.Label>الموديل</Form.Label>
+              <Form.Control name="model" required />
             </Form.Group>
-         )}
-            {processor === "أخرى" && (
-              <Form.Group><Form.Label>معالج آخر</Form.Label><Form.Control name="otherProcessor" required /></Form.Group>
+
+            {/* المعالج */}
+            {(deviceType === "لاب توب" || deviceType === "سيرفر" || deviceType === "حاسوب مكتبي") && (
+              <Form.Group>
+                <Form.Label>المعالج</Form.Label>
+                <Form.Select value={processor} onChange={(e) => setProcessor(e.target.value)} required>
+                  <option value="">اختر</option>
+                  <option value="Intel i3">Intel i3</option>
+                  <option value="Intel i5">Intel i5</option>
+                  <option value="Intel i7">Intel i7</option>
+                  <option value="Intel i9">Intel i9</option>
+                  <option value="AMD Ryzen 3">AMD Ryzen 3</option>
+                  <option value="AMD Ryzen 5">AMD Ryzen 5</option>
+                  <option value="AMD Ryzen 7">AMD Ryzen 7</option>
+                  <option value="AMD Ryzen 9">AMD Ryzen 9</option>
+                  <option value="أخرى">أخرى</option>
+                </Form.Select>
+              </Form.Group>
             )}
-         
+
+            {processor === "أخرى" && (
+              <Form.Group>
+                <Form.Label>معالج آخر</Form.Label>
+                <Form.Control name="otherProcessor" required />
+              </Form.Group>
+            )}
+
+            {/* RAM */}
             {(deviceType === "لاب توب" || deviceType === "سيرفر" || deviceType === "تاب" || deviceType === "حاسوب مكتبي") && (
               <Form.Group>
                 <Form.Label>الذاكرة RAM</Form.Label>
@@ -190,13 +171,25 @@ export default function DevicesForm() {
               </Form.Group>
             )}
 
-            <Form.Group><Form.Label>تاريخ الشراء</Form.Label><Form.Control type="date" name="purchaseDate" required /></Form.Group>
+            {/* تاريخ الشراء */}
+            <Form.Group>
+              <Form.Label>تاريخ الشراء</Form.Label>
+              <Form.Control type="date" name="purchaseDate" required />
+            </Form.Group>
+
+            {/* الموظف */}
             <Form.Group>
               <Form.Label>الموظف</Form.Label>
               <Select options={employees} name="employee" placeholder="اختر الموظف" isSearchable />
             </Form.Group>
-            <Form.Group><Form.Label>الكلفة (بالدولار)</Form.Label><Form.Control type="number" step="0.01" name="cost" required /></Form.Group>
 
+            {/* الكلفة */}
+            <Form.Group>
+              <Form.Label>الكلفة (بالدولار)</Form.Label>
+              <Form.Control type="number" step="0.01" name="cost" required />
+            </Form.Group>
+
+            {/* الحالة */}
             <Form.Group>
               <Form.Label>الحالة</Form.Label>
               <Form.Select value={status} onChange={(e) => setStatus(e.target.value)} required>
@@ -206,12 +199,14 @@ export default function DevicesForm() {
               </Form.Select>
             </Form.Group>
 
+            {/* وصف العطل */}
             {status === "معطل" && (
               <>
                 <Form.Group>
                   <Form.Label>وصف العطل</Form.Label>
                   <Form.Control name="breakdown" required />
                 </Form.Group>
+
                 <Form.Group>
                   <Form.Label>أولوية الإصلاح (1-5)</Form.Label>
                   <Form.Control type="number" min="1" max="5" name="priority" required />
@@ -219,6 +214,7 @@ export default function DevicesForm() {
               </>
             )}
 
+            {/* التأثير */}
             {(status === "معطل" || status === "يعمل بأداء ضعيف") && (
               <Form.Group>
                 <Form.Label>التأثير على الخدمة (%)</Form.Label>
@@ -228,11 +224,13 @@ export default function DevicesForm() {
           </>
         )}
 
+        {/* الوصف */}
         <Form.Group>
           <Form.Label>الوصف</Form.Label>
           <Form.Control name="description" required />
         </Form.Group>
 
+        {/* ملاحظات */}
         <Form.Group>
           <Form.Label>ملاحظات</Form.Label>
           <Form.Control name="notes" />
