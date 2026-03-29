@@ -2,12 +2,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
 
-import EmployeesForm from "./components/EmployeesForm";
-import DevicesForm from "./components/DevicesForm";
-import CarsForm from "./components/CarsForm";
-import FurnitureForm from "./components/FurnitureForm";
-import ProjectsForm from "./components/ProjectsForm";
-import ProjectChallengesForm from "./components/ProjectChallengesForm";
 import BuildingList from "./components/BuildingList";
 import AddBuilding from "./components/AddBuilding";
 import "leaflet/dist/leaflet.css";
@@ -19,6 +13,16 @@ import DepartmentsList from "./components/DepartmentsList";
 import AddDepartment from "./components/AddDepartment";
 import DivisionsList from "./components/DivisionsList";
 import AddDivision from "./components/AddDivision";
+import EmployeesList from "./components/EmployeesList";
+import AddEmployee from "./components/AddEmployee";
+import EditEmployee from "./components/EditEmployee";
+import DevicesList from "./components/DevicesList";
+import AddDevice from "./components/AddDevice";
+import FurnitureList from "./components/FurnitureList";
+import AddFurniture from "./components/AddFurniture";
+import CarsList from "./components/CarsList";
+import AddCar from "./components/AddCar";
+
 
 function App() {
   return (
@@ -54,17 +58,25 @@ function App() {
           <Route path="/add-department" element={<AddDepartment />} />
             <Route path="/divisions" element={<DivisionsList />} />
           <Route path="/add-division" element={<AddDivision />} />
-          <Route path="/employees" element={<EmployeesForm />} />
-          <Route path="/devices" element={<DevicesForm />} />
-          <Route path="/cars" element={<CarsForm />} />
-          <Route path="/furniture" element={<FurnitureForm />} />
-          <Route path="/projects" element={<ProjectsForm />} />
-          <Route path="/project-challenges" element={<ProjectChallengesForm />} />
+          <Route path="/employees" element={<EmployeesList />} />
+          <Route path="/devices" element={<DevicesList />} />
+          <Route path="/cars" element={<CarsList />} />
+          <Route path="/furniture" element={<FurnitureList />} />
+          <Route path="/projects" element={<ProjectsList />} />
+          <Route path="/project-challenges" element={<ProjectChallengesList />} />
           <Route path="/services" element={<ServicesList />} />
           <Route path="/add" element={<AddService />} />
            <Route path="/swot" element={<SwotList />} />
           <Route path="/add-swot" element={<AddSwot />} />
+         <Route path="/add-Employee" element={<AddEmployee />} />
+         <Route path="/Edit-Employee" element={<EditEmployee />} />
+         <Route path="/add-Device" element={<AddDevice />} />
+         <Route path="/add-Car" element={<AddCar />} />
+        <Route path="/add-Furniture" element={<AddFurniture />} />
+        <Route path="/add-Project" element={<AddProject />} />
+        <Route path="/add-ProjectChallenge" element={<AddProjectChallenge />} />
 
+  
         </Routes>
       </Container>
     </Router>
