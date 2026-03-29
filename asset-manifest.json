@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/DireocrateData/static/css/main.7f62b1f1.css",
-    "main.js": "/DireocrateData/static/js/main.5891bd8e.js",
+    "main.js": "/DireocrateData/static/js/main.ff4f35bd.js",
     "static/js/453.ff2c892f.chunk.js": "/DireocrateData/static/js/453.ff2c892f.chunk.js",
     "index.html": "/DireocrateData/index.html",
     "main.7f62b1f1.css.map": "/DireocrateData/static/css/main.7f62b1f1.css.map",
-    "main.5891bd8e.js.map": "/DireocrateData/static/js/main.5891bd8e.js.map",
+    "main.ff4f35bd.js.map": "/DireocrateData/static/js/main.ff4f35bd.js.map",
     "453.ff2c892f.chunk.js.map": "/DireocrateData/static/js/453.ff2c892f.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.7f62b1f1.css",
-    "static/js/main.5891bd8e.js"
+    "static/js/main.ff4f35bd.js"
   ]
 }
