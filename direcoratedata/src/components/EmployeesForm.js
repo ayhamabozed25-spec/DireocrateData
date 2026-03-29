@@ -12,6 +12,7 @@ export default function EmployeesForm() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [need, setNeed] = useState("");
+  const [IsStudent, setIsStudent] = useState("");
   const [qualification, setQualification] = useState("");
   const [university, setUniversity] = useState("");
   const [specialization, setSpecialization] = useState("");
