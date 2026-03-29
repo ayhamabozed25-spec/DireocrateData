@@ -437,3 +437,6 @@ export default function BuildingList() {
         </Modal.Footer>
       </Modal>
 
+  </div>
+  );
+}
