@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
-import { Form, Button, Table, Modal } from "react-bootstrap";
+import { Form, Button, Table, Modal ,Row , Col} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 
