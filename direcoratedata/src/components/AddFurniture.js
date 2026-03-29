@@ -29,7 +29,6 @@ export default function AddFurniture() {
     await addDoc(collection(db, "furniture"), {
       need,
       type: type === "أخرى" ? e.target.otherType.value : type,
-      costPerUnit: need === "مطلوب" ? null : parseFloat(e.target.costPerUnit.value),
       quantity: parseInt(e.target.quantity.value),
       employee: need === "مطلوب" ? null : e.target.employee.value,
       status: need === "مطلوب" ? null : status,
@@ -95,14 +94,7 @@ export default function AddFurniture() {
           </Form.Group>
         )}
 
-        {/* الكلفة */}
-        {need === "متوفر" && (
-          <Form.Group>
-            <Form.Label>الكلفة للوحدة</Form.Label>
-            <Form.Control type="number" step="0.01" name="costPerUnit" required />
-          </Form.Group>
-        )}
-
+     
         {/* الحالة */}
         {need === "متوفر" && (
           <Form.Group>
