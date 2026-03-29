@@ -17,6 +17,7 @@ import {
   Badge,
 } from "react-bootstrap";
 import { syrianDirectorates } from "./directorates";
+import { useNavigate } from "react-router-dom";
 
 export default function ServicesList() {
   const [services, setServices] = useState([]);
@@ -25,9 +26,10 @@ export default function ServicesList() {
   const [filterTarget, setFilterTarget] = useState("");
   const [filterInstitution, setFilterInstitution] = useState("");
 
-  // التعديل
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
+
+  const navigate = useNavigate(); // ← مهم جداً
 
   const loadServices = async () => {
     const snapshot = await getDocs(collection(db, "services"));
@@ -38,13 +40,11 @@ export default function ServicesList() {
     loadServices();
   }, []);
 
-  // فتح نافذة التعديل
   const handleEdit = (service) => {
     setEditingService({ ...service });
     setShowModal(true);
   };
 
-  // حفظ التعديل
   const handleSaveEdit = async () => {
     const ref = doc(db, "services", editingService.id);
     await updateDoc(ref, editingService);
@@ -52,23 +52,19 @@ export default function ServicesList() {
     loadServices();
   };
 
-  // حذف خدمة
   const handleDelete = async (id) => {
     if (!window.confirm("هل تريد حذف هذه الخدمة؟")) return;
     await deleteDoc(doc(db, "services", id));
     loadServices();
   };
 
-  // فلترة النتائج
   const filteredServices = services.filter((service) => {
     const matchesSearch =
       service.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.details?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.target?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesTarget = filterTarget
-      ? service.target === filterTarget
-      : true;
+    const matchesTarget = filterTarget ? service.target === filterTarget : true;
 
     const matchesInstitution = filterInstitution
       ? service.otherInstitution === filterInstitution
@@ -83,10 +79,7 @@ export default function ServicesList() {
 
       {/* زر إضافة خدمة */}
       <div className="d-flex justify-content-end mb-3">
-        <Button
-          variant="primary"
-          onClick={() => (window.location.href = "/add")}
-        >
+        <Button variant="primary" onClick={() => navigate("/add")}>
           إضافة خدمة جديدة
         </Button>
       </div>
@@ -198,10 +191,7 @@ export default function ServicesList() {
                 <Form.Control
                   value={editingService.name}
                   onChange={(e) =>
-                    setEditingService({
-                      ...editingService,
-                      name: e.target.value,
-                    })
+                    setEditingService({ ...editingService, name: e.target.value })
                   }
                 />
               </Form.Group>
@@ -211,10 +201,7 @@ export default function ServicesList() {
                 <Form.Control
                   value={editingService.details}
                   onChange={(e) =>
-                    setEditingService({
-                      ...editingService,
-                      details: e.target.value,
-                    })
+                    setEditingService({ ...editingService, details: e.target.value })
                   }
                 />
               </Form.Group>
@@ -224,10 +211,7 @@ export default function ServicesList() {
                 <Form.Control
                   value={editingService.target}
                   onChange={(e) =>
-                    setEditingService({
-                      ...editingService,
-                      target: e.target.value,
-                    })
+                    setEditingService({ ...editingService, target: e.target.value })
                   }
                 />
               </Form.Group>
@@ -256,10 +240,7 @@ export default function ServicesList() {
                 <Form.Control
                   value={editingService.cost}
                   onChange={(e) =>
-                    setEditingService({
-                      ...editingService,
-                      cost: e.target.value,
-                    })
+                    setEditingService({ ...editingService, cost: e.target.value })
                   }
                 />
               </Form.Group>
@@ -269,10 +250,7 @@ export default function ServicesList() {
                 <Form.Control
                   value={editingService.timeCost}
                   onChange={(e) =>
-                    setEditingService({
-                      ...editingService,
-                      timeCost: e.target.value,
-                    })
+                    setEditingService({ ...editingService, timeCost: e.target.value })
                   }
                 />
               </Form.Group>
