@@ -36,7 +36,6 @@ function App() {
               <Nav.Link as={Link} to="/projects">المشاريع</Nav.Link>
               <Nav.Link as={Link} to="/project-challenges">تحديات المشاريع</Nav.Link>
               <Nav.Link as={Link} to="/services">الخدمات</Nav.Link>
-               <Nav.Link as={Link} to="/add">اضافة خدمة</Nav.Link>
               <Nav.Link as={Link} to="/swot">SWOT</Nav.Link>
             
             </Nav>
