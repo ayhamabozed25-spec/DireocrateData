@@ -1,0 +1,717 @@
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase";
+import { Form, Button } from "react-bootstrap";
+import Select from "react-select";
+import { jobTitles } from "./jobTitles";
+
+export default function EditEmployee() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [departments, setDepartments] = useState([]);
+  const [divisions, setDivisions] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
+
+  const [initial, setInitial] = useState(null);
+
+  const [need, setNeed] = useState("");
+  const [IsStudent, setIsStudent] = useState("");
+  const [qualification, setQualification] = useState("");
+  const [university, setUniversity] = useState("");
+  const [specialization, setSpecialization] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+
+  // ============================
+  // تحميل الأقسام
+  // ============================
+  useEffect(() => {
+    const fetchDeps = async () => {
+      const snap = await getDocs(collection(db, "departments"));
+      setDepartments(snap.docs.map(d => ({
+        value: d.data().name,
+        label: d.data().name
+      })));
+    };
+    fetchDeps();
+  }, []);
+
+  // ============================
+  // تحميل الشعب
+  // ============================
+  useEffect(() => {
+    const fetchDivs = async () => {
+      const snap = await getDocs(collection(db, "divisions"));
+      setDivisions(snap.docs.map(d => ({
+        value: d.data().name,
+        label: d.data().name,
+        department: d.data().department
+      })));
+    };
+    fetchDivs();
+  }, []);
+
+  // ============================
+  // تحميل بيانات الموظف
+  // ============================
+  useEffect(() => {
+    const loadEmployee = async () => {
+      const ref = doc(db, "employees", id);
+      const snap = await getDoc(ref);
+
+      if (!snap.exists()) {
+        alert("الموظف غير موجود");
+        navigate("/employees");
+        return;
+      }
+
+      const data = snap.data();
+      setInitial(data);
+
+      setNeed(data.need || "");
+      setQualification(data.qualification || "");
+      setUniversity(data.university || "");
+      setSpecialization(data.specialization || "");
+      setIsStudent(data.IsStudent || "");
+      setJobTitle(data.jobTitle || data.otherJobTitle || "");
+
+      if (data.department) {
+        setSelectedDepartment({ value: data.department, label: data.department });
+      }
+    };
+
+    loadEmployee();
+  }, [id, navigate]);
+
+  // ============================
+  // الجامعات حسب المؤهل
+  // ============================
+  const universitiesOptions = {
+    "دراسات عليا": [
+      "كلية الطب البشري",
+      "كلية طب الأسنان",
+      "كلية الصيدلة",
+      "كلية الهندسة المدنية",
+      "كلية الهندسة المعمارية",
+      "كلية الهندسة المعلوماتية",
+      "كلية الهندسة الكهربائية",
+      "كلية الهندسة الميكانيكية",
+      "كلية الهندسة الزراعية",
+      "كلية الهندسة البيئية",
+      "كلية الفنون الجميلة",
+      "كلية الاقتصاد",
+      "كلية الحقوق",
+      "كلية التربية",
+      "كلية الآداب",
+      "كلية العلوم",
+      "كلية الإعلام",
+      "كلية السياحة",
+      "كلية الطب البيطري",
+      "أخرى"
+    ],
+
+    "جامعة 5 سنوات": [
+      "كلية الطب البشري",
+      "كلية طب الأسنان",
+      "كلية الصيدلة",
+      "كلية الهندسة المدنية",
+      "كلية الهندسة المعمارية",
+      "كلية الهندسة المعلوماتية",
+      "كلية الهندسة الكهربائية",
+      "كلية الهندسة الميكانيكية",
+      "كلية الهندسة الزراعية",
+      "كلية الهندسة البيئية",
+      "كلية الفنون الجميلة",
+      "أخرى"
+    ],
+
+    "جامعة 4 سنوات": [
+      "كلية الاقتصاد",
+      "كلية الحقوق",
+      "كلية التربية",
+      "كلية الآداب",
+      "كلية العلوم",
+      "كلية الإعلام",
+      "كلية السياحة",
+      "كلية الطب البيطري",
+      "أخرى"
+    ],
+
+    "معهد": [
+      "معهد الحاسوب",
+      "معهد الكهرباء",
+      "معهد الميكانيك",
+      "معهد صحي",
+      "معهد تمريض",
+      "معهد تقاني زراعي",
+      "معهد تقاني هندسي",
+      "أخرى"
+    ],
+
+    "ثانوي": [
+      "علمي",
+      "أدبي",
+      "شرعي",
+      "صناعة",
+      "تجارة",
+      "معلوماتية",
+      "أخرى"
+    ]
+  };
+
+  // ============================
+  // التخصصات حسب الجامعة
+  // ============================
+  const specializationsOptions = {
+    "كلية الطب البشري": [
+      "طب بشري",
+      "جراحة عامة",
+      "جراحة عظمية",
+      "جراحة عصبية",
+      "جراحة قلبية",
+      "أمراض داخلية",
+      "أطفال",
+      "نسائية وتوليد",
+      "جلدية",
+      "أنف أذن حنجرة",
+      "عيون",
+      "تخدير",
+      "أشعة",
+      "أخرى"
+    ],
+
+    "كلية طب الأسنان": [
+      "تقويم",
+      "تعويضات سنية",
+      "جراحة فم وفكين",
+      "لب وجذور",
+      "أخرى"
+    ],
+
+    "كلية الصيدلة": [
+      "صيدلة عامة",
+      "صيدلة صناعية",
+      "مراقبة دوائية",
+      "أخرى"
+    ],
+
+    "كلية الهندسة المدنية": [
+      "إنشاءات",
+      "مياه",
+      "طرق وجسور",
+      "هندسة زلازل",
+      "إدارة مشاريع",
+      "أخرى"
+    ],
+
+    "كلية الهندسة المعلوماتية": [
+      "برمجيات",
+      "ذكاء اصطناعي",
+      "شبكات",
+      "نظم معلومات",
+      "أمن معلومات",
+      "أخرى"
+    ],
+
+    "كلية الهندسة الميكانيكية": [
+      "قوى ميكانيكية",
+      "ميكاترونيكس",
+      "تبريد وتكييف",
+      "تصميم وتصنيع",
+      "أخرى"
+    ],
+
+    "كلية الهندسة الكهربائية": [
+      "قوى كهربائية",
+      "اتصالات",
+      "تحكم آلي",
+      "الكترونيات",
+      "أخرى"
+    ],
+
+    "كلية الهندسة المعمارية": [
+      "تصميم معماري",
+      "تخطيط عمراني",
+      "ترميم",
+      "أخرى"
+    ],
+
+    "كلية الاقتصاد": [
+      "إدارة أعمال",
+      "محاسبة",
+      "اقتصاد",
+      "تمويل ومصارف",
+      "تسويق",
+      "إحصاء",
+      "أخرى"
+    ],
+
+    "كلية الحقوق": [
+      "قانون عام",
+      "قانون خاص",
+      "قانون دولي",
+      "قانون جنائي",
+      "أخرى"
+    ],
+
+    "كلية العلوم": [
+      "رياضيات",
+      "فيزياء",
+      "كيمياء",
+      "علوم حياة",
+      "إحصاء",
+      "جيولوجيا",
+      "أخرى"
+    ],
+
+    "كلية الآداب": [
+      "اللغة العربية",
+      "اللغة الإنجليزية",
+      "اللغة الفرنسية",
+      "الجغرافيا",
+      "التاريخ",
+      "علم الاجتماع",
+      "الفلسفة",
+      "علم النفس",
+      "أخرى"
+    ],
+
+    "كلية التربية": [
+      "معلم صف",
+      "إرشاد نفسي",
+      "تعليم أساسي",
+      "تعليم خاص",
+      "أخرى"
+    ],
+
+    "كلية الإعلام": [
+      "صحافة",
+      "علاقات عامة",
+      "إذاعة وتلفزيون",
+      "إعلام رقمي",
+      "أخرى"
+    ],
+
+    "كلية الزراعة": [
+      "محاصيل",
+      "وقاية نبات",
+      "تربة وري",
+      "اقتصاد زراعي",
+      "أخرى"
+    ],
+
+    "كلية الطب البيطري": [
+      "طب بيطري عام",
+      "أمراض حيوانية",
+      "تغذية حيوانية",
+      "أخرى"
+    ],
+
+    "كلية السياحة": [
+      "إدارة فنادق",
+      "إدارة سياحية",
+      "إرشاد سياحي",
+      "أخرى"
+    ],
+
+    "كلية الفنون الجميلة": [
+      "تصميم غرافيك",
+      "نحت",
+      "تصوير",
+      "ديكور",
+      "أخرى"
+    ],
+
+    "المعاهد المتوسطة": [
+      "معهد الحاسوب – برمجة",
+      "معهد الحاسوب – شبكات",
+      "معهد الكهرباء – قوى",
+      "معهد الكهرباء – تحكم",
+      "معهد الميكانيك – إنتاج",
+      "معهد الميكانيك – تبريد وتكييف",
+      "معهد صحي – مخابر",
+      "معهد صحي – تمريض",
+      "أخرى"
+    ],
+
+    "الثانوية": [
+      "علمي",
+      "أدبي",
+      "شرعي",
+      "صناعة",
+      "تجارة",
+      "معلوماتية",
+      "أخرى"
+    ]
+  };
+
+  // ============================
+  // فلترة الشعب حسب القسم
+  // ============================
+  const filteredDivisions = selectedDepartment
+    ? divisions.filter(div => div.department === selectedDepartment.value)
+    : [];
+
+  // ============================
+  // حفظ التعديلات
+  // ============================
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const ref = doc(db, "employees", id);
+
+    await updateDoc(ref, {
+      name: e.target.name?.value || null,
+      gender: e.target.gender.value,
+      age: e.target.age.value,
+      phone: need === "شاغر" ? null : e.target.phone?.value || null,
+      city: e.target.city.value,
+      qualification,
+      otherQualification: e.target.otherQualification?.value || null,
+      university: university === "أخرى" ? e.target.otherUniversity.value : university,
+      specialization: specialization === "أخرى" ? e.target.otherSpecialization.value : specialization,
+      certificateSource: e.target.certificateSource?.value || null,
+      IsStudent: e.target.IsStudent?.value || null,
+      contract: e.target.contract.value,
+      jobTitle,
+      otherJobTitle: jobTitle === "أخرى" ? (e.target.otherJobTitle?.value || null) : null,
+      matchCertificate: e.target.matchCertificate?.value || null,
+      jobCategory: e.target.jobCategory.value,
+      salary: e.target.salary.value,
+      task: e.target.task.value,
+      need,
+      department: need === "شاغر" ? null : e.target.department?.value || null,
+      division: need === "شاغر" ? null : e.target.division?.value || null,
+    });
+
+    alert("تم تعديل بيانات الموظف بنجاح");
+    navigate("/employees");
+  };
+
+  // ============================
+  // واجهة التعديل
+  // ============================
+  if (!initial) return <div className="p-3">جاري تحميل بيانات الموظف...</div>;
+
+  return (
+    <div className="p-3">
+      <h3>تعديل بيانات الموظف</h3>
+
+      <Form onSubmit={handleSubmit}>
+
+        {/* الحاجة */}
+        <Form.Group>
+          <Form.Label>الحاجة</Form.Label>
+          <Form.Select value={need} onChange={(e) => setNeed(e.target.value)} required>
+            <option value="">اختر</option>
+            <option value="شاغر">شاغر</option>
+            <option value="متوفر">متوفر</option>
+          </Form.Select>
+        </Form.Group>
+
+        {/* الاسم */}
+        {need === "متوفر" && (
+          <Form.Group>
+            <Form.Label>اسم الموظف</Form.Label>
+            <Form.Control name="name" defaultValue={initial.name || ""} required />
+          </Form.Group>
+        )}
+
+        {/* الجنس */}
+        <Form.Group>
+          <Form.Label>الجنس</Form.Label>
+          <Form.Select name="gender" defaultValue={initial.gender} required>
+            <option value="">اختر</option>
+            <option value="ذكر">ذكر</option>
+            <option value="أنثى">أنثى</option>
+          </Form.Select>
+        </Form.Group>
+
+        {/* العمر */}
+        <Form.Group>
+          <Form.Label>العمر</Form.Label>
+          <Form.Control type="number" name="age" min="15" max="80" defaultValue={initial.age} required />
+        </Form.Group>
+
+        {/* الهاتف */}
+        {need === "متوفر" && (
+          <Form.Group>
+            <Form.Label>الهاتف</Form.Label>
+            <Form.Control
+              name="phone"
+              defaultValue={initial.phone || ""}
+              inputMode="numeric"
+              pattern="[0-9]{9,}"
+              placeholder="أدخل رقم الهاتف"
+              required
+            />
+          </Form.Group>
+        )}
+
+        {/* السكن */}
+        <Form.Group>
+          <Form.Label>السكن الحالي</Form.Label>
+          <Form.Select name="city" defaultValue={initial.city} required>
+            <option value="">اختر</option>
+            <option value="دمشق">دمشق</option>
+            <option value="حلب">حلب</option>
+            <option value="اللاذقية">اللاذقية</option>
+            <option value="حمص">حمص</option>
+            <option value="حماة">حماة</option>
+            <option value="طرطوس">طرطوس</option>
+            <option value="درعا">درعا</option>
+            <option value="الرقة">الرقة</option>
+            <option value="دير الزور">دير الزور</option>
+            <option value="الحسكة">الحسكة</option>
+            <option value="إدلب">إدلب</option>
+            <option value="السويداء">السويداء</option>
+          </Form.Select>
+        </Form.Group>
+
+        {/* المؤهل */}
+        <Form.Group>
+          <Form.Label>المؤهل</Form.Label>
+          <Form.Select
+            value={qualification}
+            onChange={(e) => setQualification(e.target.value)}
+            required
+          >
+            <option value="">اختر</option>
+            <option value="دراسات عليا">دراسات عليا</option>
+            <option value="جامعة 5 سنوات">جامعة 5 سنوات</option>
+            <option value="جامعة 4 سنوات">جامعة 4 سنوات</option>
+            <option value="معهد">معهد</option>
+            <option value="ثانوي">ثانوي</option>
+            <option value="أساسي">أساسي</option>
+            <option value="إعدادي">إعدادي</option>
+            <option value="غير متعلم">غير متعلم</option>
+          </Form.Select>
+        </Form.Group>
+
+        {/* الجامعة */}
+        {(qualification === "دراسات عليا" ||
+          qualification === "جامعة 5 سنوات" ||
+          qualification === "جامعة 4 سنوات" ||
+          qualification === "معهد" ||
+          qualification === "ثانوي") && (
+          <Form.Group>
+            <Form.Label>اسم الجامعة / المعهد</Form.Label>
+            <Form.Select
+              value={university}
+              onChange={(e) => setUniversity(e.target.value)}
+              required
+            >
+              <option value="">اختر</option>
+              {universitiesOptions[qualification]?.map((u, i) => (
+                <option key={i} value={u}>{u}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        )}
+
+        {/* جامعة أخرى */}
+        {university === "أخرى" && (
+          <Form.Group>
+            <Form.Label>جامعة / معهد آخر</Form.Label>
+            <Form.Control name="otherUniversity" defaultValue={initial.otherUniversity || ""} required />
+          </Form.Group>
+        )}
+
+        {/* التخصص */}
+        {specializationsOptions[university] && (
+          <Form.Group>
+            <Form.Label>التخصص</Form.Label>
+            <Form.Select
+              value={specialization}
+              onChange={(e) => setSpecialization(e.target.value)}
+              required
+            >
+              <option value="">اختر</option>
+              {specializationsOptions[university]?.map((s, i) => (
+                <option key={i} value={s}>{s}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        )}
+
+        {/* تخصص آخر */}
+        {(specialization === "أخرى" || university === "أخرى") && (
+          <Form.Group>
+            <Form.Label>تخصص آخر</Form.Label>
+            <Form.Control name="otherSpecialization" defaultValue={initial.otherSpecialization || ""} required />
+          </Form.Group>
+        )}
+
+        {/* طالب / متخرج */}
+        {(qualification === "دراسات عليا" ||
+          qualification === "جامعة 5 سنوات" ||
+          qualification === "جامعة 4 سنوات" ||
+          qualification === "معهد" ||
+          qualification === "ثانوي") && (
+          <Form.Group>
+            <Form.Label>طالب / متخرج</Form.Label>
+            <Form.Select
+              name="IsStudent"
+              defaultValue={initial.IsStudent || ""}
+              onChange={(e) => setIsStudent(e.target.value)}
+              required
+            >
+              <option value="">اختر</option>
+              <option value="طالب">طالب</option>
+              <option value="حاصل على الشهادة">حاصل على الشهادة</option>
+            </Form.Select>
+          </Form.Group>
+        )}
+
+               {/* تاريخ الحصول على الشهادة */}
+        {need === "متوفر" && IsStudent === "حاصل على الشهادة" && (
+          <Form.Group>
+            <Form.Label>تاريخ الحصول على الشهادة</Form.Label>
+            <Form.Control
+              type="date"
+              name="certificateDate"
+              defaultValue={initial.certificateDate || ""}
+              required
+            />
+          </Form.Group>
+        )}
+
+        {/* نوع العقد */}
+        <Form.Group>
+          <Form.Label>نوع العقد</Form.Label>
+          <Form.Select name="contract" defaultValue={initial.contract} required>
+            <option value="">اختر</option>
+            <option value="مثبت">مثبت</option>
+            <option value="عقد دائم">عقد دائم</option>
+            <option value="عقد موسمي">عقد موسمي</option>
+            <option value="عقد سنوي">عقد سنوي</option>
+          </Form.Select>
+        </Form.Group>
+
+        {/* المسمى الوظيفي */}
+        <Form.Group>
+          <Form.Label>المسمى الوظيفي</Form.Label>
+          <Form.Control
+            list="jobTitlesList"
+            value={jobTitle}
+            onChange={(e) => setJobTitle(e.target.value)}
+            placeholder="ابحث عن المسمى الوظيفي..."
+            required
+          />
+          <datalist id="jobTitlesList">
+            {jobTitles.map((title, idx) => (
+              <option key={idx} value={title} />
+            ))}
+            <option value="أخرى" />
+          </datalist>
+        </Form.Group>
+
+        {jobTitle === "أخرى" && (
+          <Form.Group>
+            <Form.Label>مسمى وظيفي آخر</Form.Label>
+            <Form.Control
+              name="otherJobTitle"
+              defaultValue={initial.otherJobTitle || ""}
+              required
+            />
+          </Form.Group>
+        )}
+
+        {/* مطابقة الشهادة للمسمى الوظيفي */}
+        {need === "متوفر" && (
+          <Form.Group>
+            <Form.Label>هل الشهادة مطابقة لاحتياج المسمى الوظيفي؟</Form.Label>
+            <Form.Select
+              name="matchCertificate"
+              defaultValue={initial.matchCertificate || ""}
+              required
+            >
+              <option value="">اختر</option>
+              <option value="نعم">نعم</option>
+              <option value="لا">لا</option>
+            </Form.Select>
+          </Form.Group>
+        )}
+
+        {/* الفئة */}
+        <Form.Group>
+          <Form.Label>الفئة (1-5)</Form.Label>
+          <Form.Control
+            type="number"
+            min="1"
+            max="5"
+            name="jobCategory"
+            defaultValue={initial.jobCategory}
+            required
+          />
+        </Form.Group>
+
+        {/* الراتب */}
+        <Form.Group>
+          <Form.Label>الراتب (بالدولار)</Form.Label>
+          <Form.Control
+            type="number"
+            step="0.01"
+            name="salary"
+            defaultValue={initial.salary}
+            required
+          />
+        </Form.Group>
+
+        {/* المهام */}
+        <Form.Group>
+          <Form.Label>المهام</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            name="task"
+            defaultValue={initial.task}
+            required
+          />
+        </Form.Group>
+
+        {/* القسم والشعبة */}
+        {need === "متوفر" && (
+          <>
+            <Form.Group>
+              <Form.Label>القسم</Form.Label>
+              <Select
+                options={departments}
+                name="department"
+                placeholder="اختر القسم"
+                isSearchable
+                defaultValue={
+                  initial.department
+                    ? { value: initial.department, label: initial.department }
+                    : null
+                }
+                onChange={(val) => setSelectedDepartment(val)}
+              />
+            </Form.Group>
+
+            <Form.Group>
+              <Form.Label>الشعبة</Form.Label>
+              <Select
+                options={filteredDivisions}
+                name="division"
+                placeholder="اختر الشعبة"
+                isSearchable
+                defaultValue={
+                  initial.division
+                    ? { value: initial.division, label: initial.division }
+                    : null
+                }
+              />
+            </Form.Group>
+          </>
+        )}
+
+        <Button type="submit" className="mt-3">
+          حفظ التعديلات
+        </Button>
+      </Form>
+    </div>
+  );
+}
+
