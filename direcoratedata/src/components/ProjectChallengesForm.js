@@ -8,8 +8,9 @@ export default function ProjectChallengesForm() {
   const [projects, setProjects] = useState([]);
   const [challenges, setChallenges] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProject, setSelectedProject] = useState(null);
 
-  // جلب المشاريع من قاعدة البيانات
+  // جلب المشاريع
   useEffect(() => {
     const fetchProjects = async () => {
       const snapshot = await getDocs(collection(db, "projects"));
@@ -22,7 +23,7 @@ export default function ProjectChallengesForm() {
     fetchProjects();
   }, []);
 
-  // جلب التحديات من قاعدة البيانات
+  // جلب التحديات
   useEffect(() => {
     const fetchChallenges = async () => {
       const snapshot = await getDocs(collection(db, "projectChallenges"));
@@ -33,19 +34,27 @@ export default function ProjectChallengesForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!selectedProject) {
+      alert("يجب اختيار مشروع");
+      return;
+    }
+
     await addDoc(collection(db, "projectChallenges"), {
-      project: e.target.project.value,
+      project: selectedProject.value,
       category: e.target.category.value,
       riskDescription: e.target.riskDescription.value,
       probability: e.target.probability.value,
       impact: e.target.impact.value,
       suggestion: e.target.suggestion.value,
     });
-    alert("تم حفظ التحدي ✅");
+
+    alert("تم حفظ التحدي بنجاح");
     e.target.reset();
+    setSelectedProject(null);
   };
 
-  // فلترة التحديات حسب البحث
+  // فلترة التحديات
   const filteredChallenges = challenges.filter(ch =>
     ch.riskDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ch.project.toLowerCase().includes(searchTerm.toLowerCase())
@@ -55,47 +64,107 @@ export default function ProjectChallengesForm() {
     <div className="p-3">
       <h3>إضافة تحدي جديد للمشروع</h3>
 
-      {/* زر البحث عن التحديات */}
-      <Form.Group className="mb-3">
-        <Form.Label>بحث عن تحدي</Form.Label>
+      {/* حقل البحث بتنسيق أجمل */}
+      <Form.Group className="mb-4">
+        <Form.Label style={{ fontWeight: "bold" }}>🔍 بحث عن تحدي</Form.Label>
         <Form.Control
           type="text"
-          placeholder="أدخل اسم المشروع أو وصف الخطر"
+          placeholder="ابحث باسم المشروع أو وصف الخطر..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            borderRadius: "10px",
+            padding: "10px",
+            border: "2px solid #ddd",
+          }}
         />
       </Form.Group>
 
-      {/* عرض نتائج البحث */}
+      {/* نتائج البحث */}
       {searchTerm && (
-        <ul>
+        <ul style={{ background: "#f7f7f7", padding: "15px", borderRadius: "10px" }}>
           {filteredChallenges.map((ch, index) => (
             <li key={index}>
-              المشروع: {ch.project} - الخطر: {ch.riskDescription} - الفئة: {ch.category}
+              <strong>المشروع:</strong> {ch.project} — <strong>الخطر:</strong> {ch.riskDescription} — <strong>الفئة:</strong> {ch.category}
             </li>
           ))}
         </ul>
       )}
 
-      {/* نموذج إضافة تحدي */}
-      <Form onSubmit={handleSubmit}>
-        <Form.Group>
-          <Form.Label>اسم المشروع</Form.Label>
+      {/* نموذج إضافة التحدي */}
+      <Form onSubmit={handleSubmit} className="mt-4">
+
+        {/* اختيار المشروع */}
+        <Form.Group className="mb-3">
+          <Form.Label>اسم المشروع *</Form.Label>
           <Select
             options={projects}
             name="project"
             placeholder="اختر المشروع"
             isSearchable
+            value={selectedProject}
+            onChange={setSelectedProject}
+            styles={{
+              control: (base) => ({
+                ...base,
+                borderRadius: "10px",
+                borderColor: "#aaa",
+              }),
+            }}
           />
         </Form.Group>
 
-        <Form.Group><Form.Label>الفئة</Form.Label><Form.Control name="category" /></Form.Group>
-        <Form.Group><Form.Label>وصف الخطر</Form.Label><Form.Control name="riskDescription" /></Form.Group>
-        <Form.Group><Form.Label>الاحتمالية</Form.Label><Form.Control name="probability" /></Form.Group>
-        <Form.Group><Form.Label>التأثير</Form.Label><Form.Control name="impact" /></Form.Group>
-        <Form.Group><Form.Label>الحل المقترح</Form.Label><Form.Control name="suggestion" /></Form.Group>
+        {/* الفئة */}
+        <Form.Group className="mb-3">
+          <Form.Label>الفئة *</Form.Label>
+          <Form.Select name="category" required>
+            <option value="">اختر الفئة</option>
+            <option value="تنظيمية">تنظيمية</option>
+            <option value="تشغيلية">تشغيلية</option>
+            <option value="مالية">مالية</option>
+            <option value="إجرائية/تشريعية">إجرائية/تشريعية</option>
+          </Form.Select>
+        </Form.Group>
 
-        <Button type="submit" className="mt-3">حفظ التحدي</Button>
+        {/* وصف الخطر */}
+        <Form.Group className="mb-3">
+          <Form.Label>وصف الخطر *</Form.Label>
+          <Form.Control name="riskDescription" required />
+        </Form.Group>
+
+        {/* الاحتمالية */}
+        <Form.Group className="mb-3">
+          <Form.Label>الاحتمالية (%) *</Form.Label>
+          <Form.Control
+            type="number"
+            name="probability"
+            min="0"
+            max="100"
+            required
+          />
+        </Form.Group>
+
+        {/* التأثير */}
+        <Form.Group className="mb-3">
+          <Form.Label>التأثير (%) *</Form.Label>
+          <Form.Control
+            type="number"
+            name="impact"
+            min="0"
+            max="100"
+            required
+          />
+        </Form.Group>
+
+        {/* الحل */}
+        <Form.Group className="mb-3">
+          <Form.Label>الحل المقترح *</Form.Label>
+          <Form.Control name="suggestion" required />
+        </Form.Group>
+
+        <Button type="submit" className="mt-3" variant="primary">
+          حفظ التحدي
+        </Button>
       </Form>
     </div>
   );
