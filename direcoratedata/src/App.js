@@ -22,7 +22,10 @@ import FurnitureList from "./components/FurnitureList";
 import AddFurniture from "./components/AddFurniture";
 import CarsList from "./components/CarsList";
 import AddCar from "./components/AddCar";
-
+import AddProject from "./components/AddProject";
+import AddProjectChallenge from "./components/AddProjectChallenge";
+import ProjectChallengesList from "./components/ProjectChallengesList";
+import ProjectsList from "./components/ProjectsList";
 
 function App() {
   return (
