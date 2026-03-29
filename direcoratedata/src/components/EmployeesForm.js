@@ -521,7 +521,7 @@ const universitiesOptions = {
 
 
         {/* مطابقة الشهادة للمسمى الوظيفي */}
-        <Form.Group>
+     {need === "متوفر" && (   <Form.Group>
           <Form.Label>هل الشهادة مطابقة لاحتياج المسمى الوظيفي؟</Form.Label>
           <Form.Select name="matchCertificate" required>
             <option value="">اختر</option>
@@ -529,7 +529,7 @@ const universitiesOptions = {
             <option value="لا">لا</option>
           </Form.Select>
         </Form.Group>
-
+     )}
         {/* الفئة */}
         <Form.Group><Form.Label>الفئة (1-5)</Form.Label><Form.Control type="number" min="1" max="5" name="jobCategory" required /></Form.Group>
 
