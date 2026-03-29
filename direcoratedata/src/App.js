@@ -26,6 +26,7 @@ import AddProject from "./components/AddProject";
 import AddProjectChallenge from "./components/AddProjectChallenge";
 import ProjectChallengesList from "./components/ProjectChallengesList";
 import ProjectsList from "./components/ProjectsList";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   return (
@@ -47,7 +48,7 @@ function App() {
               <Nav.Link as={Link} to="/project-challenges">تحديات المشاريع</Nav.Link>
               <Nav.Link as={Link} to="/services">الخدمات</Nav.Link>
               <Nav.Link as={Link} to="/swot">SWOT</Nav.Link>
-            
+             <Nav.Link as={Link} to="/Dashboard">Dashboard</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -70,6 +71,7 @@ function App() {
           <Route path="/services" element={<ServicesList />} />
           <Route path="/add" element={<AddService />} />
            <Route path="/swot" element={<SwotList />} />
+           <Route path="/Dashboard" element={<Dashboard />} />
           <Route path="/add-swot" element={<AddSwot />} />
          <Route path="/add-Employee" element={<AddEmployee />} />
          <Route path="/Edit-Employee" element={<EditEmployee />} />
