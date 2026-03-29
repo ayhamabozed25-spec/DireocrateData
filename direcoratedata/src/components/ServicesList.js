@@ -16,7 +16,7 @@ import {
   Col,
   Badge,
 } from "react-bootstrap";
-import { syrianDirectorates } from "../data/directorates";
+import { syrianDirectorates } from "./directorates";
 
 export default function ServicesList() {
   const [services, setServices] = useState([]);
