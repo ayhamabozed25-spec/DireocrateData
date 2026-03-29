@@ -109,7 +109,7 @@ export default function BuildingList() {
       </Table>
 
       {/* نافذة التعديل */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
+    <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
   <Modal.Header closeButton>
     <Modal.Title>تعديل معلومات البناء</Modal.Title>
   </Modal.Header>
@@ -195,19 +195,7 @@ export default function BuildingList() {
           </Form.Group>
         )}
 
-        {/* الطوابق */}
-        <Form.Group className="mb-3">
-          <Form.Label>عدد الطوابق</Form.Label>
-          <Form.Control
-            type="number"
-            value={editingBuilding.floors}
-            onChange={(e) =>
-              setEditingBuilding({ ...editingBuilding, floors: e.target.value })
-            }
-          />
-        </Form.Group>
-
-        {/* باقي الحقول كما هي ... */}
+        {/* باقي الحقول كما هي (الطوابق، المكاتب، السعة، المساحة، إلخ) */}
 
       </Form>
     )}
