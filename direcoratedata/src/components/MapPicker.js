@@ -16,10 +16,12 @@ export default function MapPicker({ onSelect }) {
   }
 
   return (
-    <MapContainer center={[33.5, 36.3]} zoom={10} style={{ width: "100%", height: "400px" }}>
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+    <MapContainer
+      center={[33.5, 36.3]}
+      zoom={10}
+      className="leaflet-container"
+    >
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <LocationMarker />
     </MapContainer>
   );
