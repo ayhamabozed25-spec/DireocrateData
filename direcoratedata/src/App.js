@@ -55,6 +55,7 @@ function App() {
           <Route path="/projects" element={<ProjectsForm />} />
           <Route path="/project-challenges" element={<ProjectChallengesForm />} />
           <Route path="/services" element={<ServicesList />} />
+          <Route path="/add" element={<AddService />} />
           <Route path="/swot" element={<StrengthsWeaknessesForm />} />
           <Route path="/search" element={<Search />} />
         </Routes>
