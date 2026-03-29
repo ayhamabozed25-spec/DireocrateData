@@ -42,7 +42,6 @@ export default function AddDevice() {
       need,
       type: deviceType === "أخرى" ? e.target.otherType.value : deviceType,
       brand: brand === "أخرى" ? e.target.otherBrand.value : brand,
-      model: e.target.model.value,
       processor: processor === "أخرى" ? e.target.otherProcessor.value : processor,
       ram: e.target.ram?.value || null,
       employee: need === "مطلوب" ? null : e.target.employee.value,
@@ -52,8 +51,8 @@ export default function AddDevice() {
       breakdown: status === "معطل" ? e.target.breakdown.value : null,
       effect: (status === "معطل" || status === "يعمل بأداء ضعيف") ? e.target.effect.value : null,
       priority: status === "معطل" ? e.target.priority.value : null,
-      description: e.target.description.value,
-      notes: e.target.notes.value || null,
+      description: e.target.description?.value || null,
+      notes: e.target.notes?.value || null,
     });
 
     alert("تم حفظ الجهاز بنجاح");
@@ -123,12 +122,8 @@ export default function AddDevice() {
                 <Form.Control name="otherBrand" required />
               </Form.Group>
             )}
-
-            {/* الموديل */}
-            <Form.Group>
-              <Form.Label>الموديل</Form.Label>
-              <Form.Control name="model" required />
-            </Form.Group>
+         <>
+          )}
 
             {/* المعالج */}
             {(deviceType === "لاب توب" || deviceType === "سيرفر" || deviceType === "حاسوب مكتبي") && (
@@ -170,7 +165,8 @@ export default function AddDevice() {
                 </Form.Select>
               </Form.Group>
             )}
-
+{need === "متوفر" && deviceType && (
+          <>
             {/* تاريخ الشراء */}
             <Form.Group>
               <Form.Label>تاريخ الشراء</Form.Label>
