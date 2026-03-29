@@ -2,7 +2,7 @@ import { useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, Row, Col } from "react-bootstrap";
-import { syrianDirectorates } from "../data/directorates";
+import { syrianDirectorates } from "./directorates";
 
 export default function AddService() {
   const [target, setTarget] = useState("");
