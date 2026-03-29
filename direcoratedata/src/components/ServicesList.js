@@ -81,6 +81,16 @@ export default function ServicesList() {
     <div className="p-3">
       <h3>عرض الخدمات</h3>
 
+      {/* زر إضافة خدمة */}
+      <div className="d-flex justify-content-end mb-3">
+        <Button
+          variant="primary"
+          onClick={() => (window.location.href = "/add")}
+        >
+          إضافة خدمة جديدة
+        </Button>
+      </div>
+
       {/* 🔍 البحث */}
       <Form.Group className="mb-3">
         <Form.Label className="fw-bold">بحث</Form.Label>
