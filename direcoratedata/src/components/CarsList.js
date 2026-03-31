@@ -132,146 +132,203 @@ export default function CarsList() {
       </Table>
 
       {/* نافذة التعديل */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>تعديل الآلية</Modal.Title>
-        </Modal.Header>
+    <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
+  <Modal.Header closeButton>
+    <Modal.Title>تعديل الآلية</Modal.Title>
+  </Modal.Header>
 
-        <Modal.Body>
-          {editingCar && (
-            <Form>
+  <Modal.Body>
+    {editingCar && (
+      <Form>
+        {/* الحاجة */}
+        <Form.Group className="mb-3">
+          <Form.Label>الحاجة</Form.Label>
+          <Form.Select
+            value={editingCar.need}
+            onChange={(e) =>
+              setEditingCar({ ...editingCar, need: e.target.value })
+            }
+            required
+          >
+            <option value="">اختر</option>
+            <option value="متوفر">متوفر</option>
+            <option value="مطلوب">مطلوب</option>
+          </Form.Select>
+        </Form.Group>
 
-              {/* الحاجة */}
-              <Form.Group className="mb-3">
-                <Form.Label>الحاجة</Form.Label>
-                <Form.Select
-                  value={editingCar.need}
-                  onChange={(e) =>
-                    setEditingCar({ ...editingCar, need: e.target.value })
-                  }
-                >
-                  <option value="متوفر">متوفر</option>
-                  <option value="مطلوب">مطلوب</option>
-                </Form.Select>
-              </Form.Group>
+        {/* نوع الآلية */}
+        <Form.Group className="mb-3">
+          <Form.Label>نوع الآلية</Form.Label>
+          <Form.Select
+            value={editingCar.type}
+            onChange={(e) =>
+              setEditingCar({ ...editingCar, type: e.target.value })
+            }
+            required
+          >
+            <option value="">اختر</option>
+            <option value="سيارة خدمة">سيارة خدمة</option>
+            <option value="مركبة زراعية">مركبة زراعية</option>
+            <option value="سيارة إسعاف">سيارة إسعاف</option>
+            <option value="شاحنة">شاحنة</option>
+            <option value="باص">باص</option>
+            <option value="أخرى">أخرى</option>
+          </Form.Select>
+        </Form.Group>
 
-              {/* النوع */}
-              <Form.Group className="mb-3">
-                <Form.Label>نوع الآلية</Form.Label>
-                <Form.Control
-                  value={editingCar.type}
-                  onChange={(e) =>
-                    setEditingCar({ ...editingCar, type: e.target.value })
-                  }
-                />
-              </Form.Group>
+        {editingCar.type === "أخرى" && (
+          <Form.Group className="mb-3">
+            <Form.Label>نوع آخر</Form.Label>
+            <Form.Control
+              value={editingCar.otherType || ""}
+              onChange={(e) =>
+                setEditingCar({ ...editingCar, otherType: e.target.value })
+              }
+              required
+            />
+          </Form.Group>
+        )}
 
-              {/* الاسم */}
-              <Form.Group className="mb-3">
-                <Form.Label>اسم الآلية</Form.Label>
-                <Form.Control
-                  value={editingCar.name}
-                  onChange={(e) =>
-                    setEditingCar({ ...editingCar, name: e.target.value })
-                  }
-                />
-              </Form.Group>
+        {/* اسم الآلية */}
+        {editingCar.type && (
+          <Form.Group className="mb-3">
+            <Form.Label>اسم الآلية</Form.Label>
+            <Form.Select
+              value={editingCar.name}
+              onChange={(e) =>
+                setEditingCar({ ...editingCar, name: e.target.value })
+              }
+              required
+            >
+              <option value="">اختر</option>
+              {carNamesOptions[editingCar.type]?.map((n, i) => (
+                <option key={i} value={n}>{n}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+        )}
 
-              {/* سنة التصنيع */}
-              {editingCar.need === "متوفر" && (
-                <Form.Group className="mb-3">
-                  <Form.Label>سنة التصنيع</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={editingCar.year || ""}
-                    onChange={(e) =>
-                      setEditingCar({ ...editingCar, year: e.target.value })
-                    }
-                  />
-                </Form.Group>
-              )}
+        {editingCar.name === "أخرى" && (
+          <Form.Group className="mb-3">
+            <Form.Label>اسم آخر</Form.Label>
+            <Form.Control
+              value={editingCar.otherName || ""}
+              onChange={(e) =>
+                setEditingCar({ ...editingCar, otherName: e.target.value })
+              }
+              required
+            />
+          </Form.Group>
+        )}
 
-              {/* الموظف */}
-              {editingCar.need === "متوفر" && (
-                <Form.Group className="mb-3">
-                  <Form.Label>الموظف</Form.Label>
-                  <Select
-                    options={employees}
-                    value={{ label: editingCar.employee, value: editingCar.employee }}
-                    onChange={(selected) =>
-                      setEditingCar({ ...editingCar, employee: selected.value })
-                    }
-                  />
-                </Form.Group>
-              )}
+        {/* سنة التصنيع */}
+        {editingCar.need === "متوفر" && (
+          <Form.Group className="mb-3">
+            <Form.Label>سنة التصنيع</Form.Label>
+            <Form.Control
+              type="number"
+              value={editingCar.year || ""}
+              onChange={(e) =>
+                setEditingCar({ ...editingCar, year: e.target.value })
+              }
+              required
+            />
+          </Form.Group>
+        )}
 
-              {/* الحالة */}
-              {editingCar.need === "متوفر" && (
-                <Form.Group className="mb-3">
-                  <Form.Label>الحالة</Form.Label>
-                  <Form.Select
-                    value={editingCar.status}
-                    onChange={(e) =>
-                      setEditingCar({ ...editingCar, status: e.target.value })
-                    }
-                  >
-                    <option value="في الخدمة">في الخدمة</option>
-                    <option value="معطلة">معطلة</option>
-                  </Form.Select>
-                </Form.Group>
-              )}
+        {/* الموظف */}
+        {editingCar.need === "متوفر" && (
+          <Form.Group className="mb-3">
+            <Form.Label>الموظف</Form.Label>
+            <Select
+              options={employees}
+              value={
+                editingCar.employee
+                  ? { label: editingCar.employee, value: editingCar.employee }
+                  : null
+              }
+              onChange={(selected) =>
+                setEditingCar({ ...editingCar, employee: selected.value })
+              }
+              placeholder="اختر الموظف"
+              isSearchable
+              required
+            />
+          </Form.Group>
+        )}
 
-              {/* الأعطال */}
-              {editingCar.status === "معطلة" && (
-                <>
-                  <Form.Group className="mb-3">
-                    <Form.Label>سبب العطل</Form.Label>
-                    <Form.Control
-                      value={editingCar.breakdown || ""}
-                      onChange={(e) =>
-                        setEditingCar({ ...editingCar, breakdown: e.target.value })
-                      }
-                    />
-                  </Form.Group>
+        {/* الحالة */}
+        {editingCar.need === "متوفر" && (
+          <Form.Group className="mb-3">
+            <Form.Label>الحالة</Form.Label>
+            <Form.Select
+              value={editingCar.status}
+              onChange={(e) =>
+                setEditingCar({ ...editingCar, status: e.target.value })
+              }
+              required
+            >
+              <option value="">اختر</option>
+              <option value="في الخدمة">في الخدمة</option>
+              <option value="معطلة">معطلة</option>
+            </Form.Select>
+          </Form.Group>
+        )}
 
-                  <Form.Group className="mb-3">
-                    <Form.Label>التأثير على الخدمة</Form.Label>
-                    <Form.Control
-                      value={editingCar.effect || ""}
-                      onChange={(e) =>
-                        setEditingCar({ ...editingCar, effect: e.target.value })
-                      }
-                    />
-                  </Form.Group>
+        {/* الأعطال */}
+        {editingCar.status === "معطلة" && (
+          <>
+            <Form.Group className="mb-3">
+              <Form.Label>سبب العطل</Form.Label>
+              <Form.Control
+                value={editingCar.breakdown || ""}
+                onChange={(e) =>
+                  setEditingCar({ ...editingCar, breakdown: e.target.value })
+                }
+                required
+              />
+            </Form.Group>
 
-                  <Form.Group className="mb-3">
-                    <Form.Label>أولوية الإصلاح (1-5)</Form.Label>
-                    <Form.Control
-                      type="number"
-                      min="1"
-                      max="5"
-                      value={editingCar.priority || ""}
-                      onChange={(e) =>
-                        setEditingCar({ ...editingCar, priority: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                </>
-              )}
+            <Form.Group className="mb-3">
+              <Form.Label>التأثير على الخدمة</Form.Label>
+              <Form.Control
+                value={editingCar.effect || ""}
+                onChange={(e) =>
+                  setEditingCar({ ...editingCar, effect: e.target.value })
+                }
+                required
+              />
+            </Form.Group>
 
-            </Form>
-          )}
-        </Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>أولوية الإصلاح (1-5)</Form.Label>
+              <Form.Control
+                type="number"
+                min="1"
+                max="5"
+                value={editingCar.priority || ""}
+                onChange={(e) =>
+                  setEditingCar({ ...editingCar, priority: e.target.value })
+                }
+                required
+              />
+            </Form.Group>
+          </>
+        )}
+      </Form>
+    )}
+  </Modal.Body>
 
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            إلغاء
-          </Button>
-          <Button variant="primary" onClick={handleSaveEdit}>
-            حفظ التعديلات
-          </Button>
-        </Modal.Footer>
-      </Modal>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowModal(false)}>
+      إلغاء
+    </Button>
+    <Button variant="primary" onClick={handleSaveEdit}>
+      حفظ التعديلات
+    </Button>
+  </Modal.Footer>
+</Modal>
+
     </div>
   );
 }
