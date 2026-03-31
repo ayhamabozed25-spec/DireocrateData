@@ -88,7 +88,7 @@ export default function AddService() {
 
         {/* حالة الخدمة */}
         <Form.Group className="mb-3">
-          <Form.Label>حالة الخدمة *</Form.Label>
+          <Form.Label>شروط الحصول على الخدمة *</Form.Label>
           <Form.Control as="textarea" rows={3} name="condition" required />
         </Form.Group>
 
