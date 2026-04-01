@@ -1,5 +1,7 @@
  import { Form, Button, Table, Modal } from "react-bootstrap";
-
+import { useState, useEffect } from "react";
+import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { db } from "../firebase";
 
 export default function UsersManagement() {
   const [users, setUsers] = useState([]);
