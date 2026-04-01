@@ -46,14 +46,7 @@ export default function BuildingList() {
     loadBuildings();
   };
 
-  const handleSearch = async () => {
-    const provider = new OpenStreetMapProvider();
-    const results = await provider.search({ query: searchQuery });
-    if (results && results.length > 0) {
-      const { x, y } = results[0];
-      setMapPosition([y, x]);
-    }
-  };
+
 
   const filteredBuildings = buildings.filter((b) =>
     b.name.toLowerCase().includes(searchTerm.toLowerCase())
