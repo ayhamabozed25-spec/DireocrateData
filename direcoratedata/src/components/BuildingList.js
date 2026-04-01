@@ -132,25 +132,7 @@ export default function BuildingList() {
                 />
               </Form.Group>
 
-              <Form.Group className="mb-3">
-          <Form.Label>ابحث عن الموقع</Form.Label>
-          <Row>
-            <Col md={9}>
-              <Form.Control
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="أدخل اسم شارع أو مدينة..."
-              />
-            </Col>
-            <Col md={3}>
-              <Button variant="primary" onClick={handleSearch}>
-                بحث
-              </Button>
-            </Col>
-          </Row>
-        </Form.Group>
-
-        {/* 🔥 استبدال الخريطة القديمة بـ MapPicker */}
+             
         <Form.Group className="mb-3">
           <Form.Label>الخريطة</Form.Label>
 
