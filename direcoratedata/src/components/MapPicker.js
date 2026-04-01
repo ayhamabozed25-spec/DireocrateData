@@ -20,8 +20,7 @@ export default function MapPicker({ onSelect }) {
   const [location, setLocation] = useState(null);
   const [address, setAddress] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [radius, setRadius] = useState(0);
-  const [darkMode, setDarkMode] = useState(false);
+  const radius = 20; // 🔥 نصف قطر ثابت
   const [streetName, setStreetName] = useState("");
 
   // اختيار الموقع بالنقر
@@ -58,7 +57,6 @@ export default function MapPicker({ onSelect }) {
     setLocation(coords);
     onSelect(coords);
 
-    // Reverse Geocoding
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${coords.lat}&lon=${coords.lng}`
     );
@@ -66,7 +64,7 @@ export default function MapPicker({ onSelect }) {
     setStreetName(data?.display_name || "غير معروف");
   };
 
-  // البحث مع اقتراحات (Autocomplete)
+  // البحث مع اقتراحات
   useEffect(() => {
     if (address.length < 3) {
       setSuggestions([]);
@@ -113,7 +111,7 @@ export default function MapPicker({ onSelect }) {
     );
   };
 
-  // مسح الموقع
+  // مسح الموقع فقط
   const clearLocation = () => {
     setLocation(null);
     setStreetName("");
@@ -164,47 +162,17 @@ export default function MapPicker({ onSelect }) {
         </ul>
       )}
 
-      {/* نصف قطر الدائرة */}
-      <div className="mb-2 mt-2">
-        <label>نصف القطر (متر):</label>
-        <input
-          type="number"
-          className="form-control"
-          value={radius}
-          onChange={(e) => setRadius(Number(e.target.value))}
-          placeholder="0 بدون دائرة"
-        />
-      </div>
-
-      {/* Dark Mode */}
-      <div className="form-check mb-2">
-        <input
-          className="form-check-input"
-          type="checkbox"
-          checked={darkMode}
-          onChange={() => setDarkMode(!darkMode)}
-        />
-        <label className="form-check-label">الوضع الليلي</label>
-      </div>
-
       {/* الخريطة */}
       <MapContainer
         center={[35.523, 35.791]}
         zoom={13}
         style={{ height: "300px", width: "100%", borderRadius: "8px" }}
       >
-        <TileLayer
-          url={
-            darkMode
-              ? "https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png"
-              : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          }
-        />
+        {/* الوضع الليلي محذوف */}
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         <LocationPicker />
-        {location && radius > 0 && (
-          <Circle center={location} radius={radius} color="blue" />
-        )}
+        {location && <Circle center={location} radius={radius} color="blue" />}
         <MapController coords={location} />
       </MapContainer>
 
