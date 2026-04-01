@@ -6,12 +6,7 @@ import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 
 
-  return position ? (
-    <Marker position={position} icon={markerIcon}>
-      <Popup>الموقع المحدد</Popup>
-    </Marker>
-  ) : null;
-}
+ 
 
 export default function BuildingList() {
   const [buildings, setBuildings] = useState([]);
