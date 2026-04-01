@@ -129,10 +129,10 @@ export default function MapPicker({ onSelect }) {
           value={address}
           onChange={(e) => setAddress(e.target.value)}
         />
-        <button className="btn btn-info" onClick={handleCurrentLocation}>
+        <button className="btn btn-info" onClick={handleCurrentLocation} type="button">
           موقعي
         </button>
-        <button className="btn btn-danger" onClick={clearLocation}>
+        <button className="btn btn-danger" onClick={clearLocation} type="button">
           مسح
         </button>
       </div>
