@@ -129,21 +129,42 @@ export default function ProjectsList() {
                 />
               </Form.Group>
 
-              {/* الخريطة */}
               <Form.Group className="mb-3">
-                <Form.Label>الموقع</Form.Label>
-                <MapPicker
-                  onSelect={(loc) =>
-                    setEditingProject({ ...editingProject, location: loc })
-                  }
-                />
-                {editingProject.location && (
-                  <div className="mt-2 text-success">
-                    الموقع الحالي: {editingProject.location.lat},{" "}
-                    {editingProject.location.lng}
-                  </div>
-                )}
-              </Form.Group>
+          <Form.Label>ابحث عن الموقع</Form.Label>
+          <Row>
+            <Col md={9}>
+              <Form.Control
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="أدخل اسم شارع أو مدينة..."
+              />
+            </Col>
+            <Col md={3}>
+              <Button variant="primary" onClick={handleSearch}>
+                بحث
+              </Button>
+            </Col>
+          </Row>
+        </Form.Group>
+
+        {/* 🔥 استبدال الخريطة القديمة بـ MapPicker */}
+        <Form.Group className="mb-3">
+          <Form.Label>الخريطة</Form.Label>
+
+          <MapPicker
+            onSelect={(coords) => {
+              if (coords) {
+                setMapPosition([coords.lat, coords.lng]);
+              }
+            }}
+          />
+
+          {mapPosition && (
+            <div className="mt-2 text-success">
+              الموقع الحالي: {mapPosition[0].toFixed(5)}, {mapPosition[1].toFixed(5)}
+            </div>
+          )}
+        </Form.Group>
 
               <Row>
                 <Col>
