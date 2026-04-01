@@ -196,11 +196,7 @@ export default function AddBuilding() {
         <Form.Group className="mb-3">
           <Form.Label>اختر الموقع على الخريطة</Form.Label>
           <MapPicker onSelect={setLocation} />
-          {location && (
-            <div className="mt-2 text-success">
-              تم اختيار الموقع: {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
-            </div>
-          )}
+        
         </Form.Group>
 
         <Button type="submit" className="mt-3 w-100">
