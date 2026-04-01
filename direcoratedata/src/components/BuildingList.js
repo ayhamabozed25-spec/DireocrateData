@@ -4,8 +4,7 @@ import { db } from "../firebase";
 import { Form, Button, Table, Modal, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
-import MapPicker from "./MapPicker";
-
+import MapPicker from "../components/MapPicker";
  
 
 export default function BuildingList() {
