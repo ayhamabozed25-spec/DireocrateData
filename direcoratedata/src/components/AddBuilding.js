@@ -2,22 +2,13 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import { useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
-import L from "leaflet";
-
-// أيقونة مخصصة للماركر
-const customIcon = L.icon({
-  iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png", // صورة دبوس أحمر
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-});
+import MapPicker from "../components/MapPicker"; // تأكد من المسار الصحيح
 
 export default function AddBuilding() {
   const [ownership, setOwnership] = useState("");
   const [structuralCondition, setStructuralCondition] = useState("");
   const [currency, setCurrency] = useState("دولار");
   const [location, setLocation] = useState(null);
-  const [address, setAddress] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,41 +53,6 @@ export default function AddBuilding() {
     setStructuralCondition("");
     setCurrency("دولار");
     setLocation(null);
-    setAddress("");
-  };
-
-  function LocationPicker() {
-    useMapEvents({
-      click(e) {
-        setLocation(e.latlng);
-      },
-    });
-    return location ? <Marker position={location} icon={customIcon} /> : null;
-  }
-
-  function MapController({ coords }) {
-    const map = useMap();
-    if (coords) {
-      map.setView(coords, 15); // الانتقال إلى الموقع الجديد
-    }
-    return null;
-  }
-
-  const handleSearchAddress = async () => {
-    if (!address) return;
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        address
-      )}`
-    );
-    const data = await res.json();
-    if (data && data.length > 0) {
-      const { lat, lon } = data[0];
-      const coords = { lat: parseFloat(lat), lng: parseFloat(lon) };
-      setLocation(coords);
-    } else {
-      alert("لم يتم العثور على الموقع");
-    }
   };
 
   return (
@@ -162,18 +118,22 @@ export default function AddBuilding() {
           <Form.Label>عدد الطوابق</Form.Label>
           <Form.Control type="number" name="floors" required />
         </Form.Group>
+
         <Form.Group>
           <Form.Label>عدد المكاتب</Form.Label>
           <Form.Control type="number" name="offices" required />
         </Form.Group>
+
         <Form.Group>
           <Form.Label>السعة</Form.Label>
           <Form.Control type="number" name="capacity" required />
         </Form.Group>
+
         <Form.Group>
           <Form.Label>المساحة</Form.Label>
           <Form.Control type="number" step="0.01" name="area" required />
         </Form.Group>
+
         <Form.Group>
           <Form.Label>تاريخ البناء</Form.Label>
           <Form.Control type="date" name="buildingDate" required />
@@ -232,43 +192,18 @@ export default function AddBuilding() {
           </Form.Select>
         </Form.Group>
 
-        <Form.Group>
-          <Form.Label>الموقع</Form.Label>
-          <Row>
-            <Col>
-              <Form.Control
-                type="text"
-                placeholder="أدخل العنوان (مدينة، شارع...)"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </Col>
-            <Col xs="auto">
-              <Button variant="secondary" onClick={handleSearchAddress}>
-                بحث
-              </Button>
-            </Col>
-          </Row>
+        {/* 🔥 هنا نستخدم MapPicker الجديد */}
+        <Form.Group className="mb-3">
+          <Form.Label>اختر الموقع على الخريطة</Form.Label>
+          <MapPicker onSelect={setLocation} />
+          {location && (
+            <div className="mt-2 text-success">
+              تم اختيار الموقع: {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
+            </div>
+          )}
         </Form.Group>
 
-              <MapContainer
-          center={[35.523, 35.791]}
-          zoom={13}
-          style={{ height: "300px", width: "100%" }}
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <LocationPicker />
-          {location && <Marker position={location} icon={customIcon} />}
-          <MapController coords={location} />
-        </MapContainer>
-
-        {location && (
-          <p>
-            الموقع المحدد: {location.lat}, {location.lng}
-          </p>
-        )}
-
-        <Button type="submit" className="mt-3">
+        <Button type="submit" className="mt-3 w-100">
           حفظ معلومات البناء
         </Button>
       </Form>
