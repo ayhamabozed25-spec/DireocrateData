@@ -145,13 +145,7 @@ export default function ProjectsList() {
             }}
           />
 
-          {editingProject.location && (
-            <div className="mt-2 text-success">
-              الموقع الحالي: 
-              {editingProject.location.lat.toFixed(5)}, 
-              {editingProject.location.lng.toFixed(5)}
-            </div>
-          )}
+  
         </Form.Group>
 
         <Row>
