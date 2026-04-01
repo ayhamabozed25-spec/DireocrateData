@@ -144,11 +144,7 @@ export default function BuildingList() {
             }}
           />
 
-          {mapPosition && (
-            <div className="mt-2 text-success">
-              الموقع الحالي: {mapPosition[0].toFixed(5)}, {mapPosition[1].toFixed(5)}
-            </div>
-          )}
+   
             </Form.Group>
    
 
