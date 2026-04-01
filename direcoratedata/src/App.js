@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./components/AuthContext";
 
 import BuildingList from "./components/BuildingList";
 import AddBuilding from "./components/AddBuilding";
