@@ -3,23 +3,8 @@ import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firesto
 import { db } from "../firebase";
 import { Form, Button, Table, Modal, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import { OpenStreetMapProvider } from "leaflet-geosearch";
 
-const markerIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
-function LocationPicker({ position, setPosition }) {
-  useMapEvents({
-    click(e) {
-      setPosition([e.latlng.lat, e.latlng.lng]);
-    },
-  });
 
   return position ? (
     <Marker position={position} icon={markerIcon}>
@@ -160,40 +145,42 @@ export default function BuildingList() {
                 />
               </Form.Group>
 
-              {/* البحث عن الموقع */}
               <Form.Group className="mb-3">
-                <Form.Label>ابحث عن الموقع</Form.Label>
-                <Row>
-                  <Col md={9}>
-                    <Form.Control
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="أدخل اسم شارع أو مدينة..."
-                    />
-                  </Col>
-                  <Col md={3}>
-                    <Button variant="primary" onClick={handleSearch}>
-                      بحث
-                    </Button>
-                  </Col>
-                </Row>
-              </Form.Group>
+          <Form.Label>ابحث عن الموقع</Form.Label>
+          <Row>
+            <Col md={9}>
+              <Form.Control
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="أدخل اسم شارع أو مدينة..."
+              />
+            </Col>
+            <Col md={3}>
+              <Button variant="primary" onClick={handleSearch}>
+                بحث
+              </Button>
+            </Col>
+          </Row>
+        </Form.Group>
 
-              {/* الخريطة */}
-              <Form.Group className="mb-3">
-                <Form.Label>الخريطة</Form.Label>
-                <MapContainer
-                  center={mapPosition}
-                  zoom={13}
-                  style={{ height: "300px", width: "100%" }}
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <LocationPicker position={mapPosition} setPosition={setMapPosition} />
-                </MapContainer>
-              </Form.Group>
+        {/* 🔥 استبدال الخريطة القديمة بـ MapPicker */}
+        <Form.Group className="mb-3">
+          <Form.Label>الخريطة</Form.Label>
+
+          <MapPicker
+            onSelect={(coords) => {
+              if (coords) {
+                setMapPosition([coords.lat, coords.lng]);
+              }
+            }}
+          />
+
+          {mapPosition && (
+            <div className="mt-2 text-success">
+              الموقع الحالي: {mapPosition[0].toFixed(5)}, {mapPosition[1].toFixed(5)}
+            </div>
+          )}
+        
 
               {/* الملكية */}
               <Form.Group className="mb-3">
