@@ -27,6 +27,7 @@ import AddProjectChallenge from "./components/AddProjectChallenge";
 import ProjectChallengesList from "./components/ProjectChallengesList";
 import ProjectsList from "./components/ProjectsList";
 import Dashboard from "./components/Dashboard";
+import Dashboard from "./components/Usersmanagement";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
               <Nav.Link as={Link} to="/services">الخدمات</Nav.Link>
               <Nav.Link as={Link} to="/swot">SWOT</Nav.Link>
              <Nav.Link as={Link} to="/Dashboard">Dashboard</Nav.Link>
+             <Nav.Link as={Link} to="/Usersmanagement">Usersmanagement</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -80,7 +82,7 @@ function App() {
         <Route path="/add-Furniture" element={<AddFurniture />} />
         <Route path="/add-Project" element={<AddProject />} />
         <Route path="/add-ProjectChallenge" element={<AddProjectChallenge />} />
-
+        <Route path="/Usersmanagement" element={<Usersmanagement />} />
   
         </Routes>
       </Container>
