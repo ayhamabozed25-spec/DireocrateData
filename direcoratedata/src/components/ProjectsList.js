@@ -100,143 +100,132 @@ export default function ProjectsList() {
       </Table>
 
       {/* نافذة التعديل */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>تعديل المشروع</Modal.Title>
-        </Modal.Header>
+      {/* نافذة التعديل */}
+<Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
+  <Modal.Header closeButton>
+    <Modal.Title>تعديل المشروع</Modal.Title>
+  </Modal.Header>
 
-        <Modal.Body>
-          {editingProject && (
-            <Form>
+  <Modal.Body>
+    {editingProject && (
+      <Form>
 
-              <Form.Group className="mb-3">
-                <Form.Label>اسم المشروع</Form.Label>
-                <Form.Control
-                  value={editingProject.name}
-                  onChange={(e) =>
-                    setEditingProject({ ...editingProject, name: e.target.value })
-                  }
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>تفاصيل المشروع</Form.Label>
-                <Form.Control
-                  value={editingProject.details}
-                  onChange={(e) =>
-                    setEditingProject({ ...editingProject, details: e.target.value })
-                  }
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-          <Form.Label>ابحث عن الموقع</Form.Label>
-          <Row>
-            <Col md={9}>
-              <Form.Control
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="أدخل اسم شارع أو مدينة..."
-              />
-            </Col>
-            <Col md={3}>
-              <Button variant="primary" onClick={handleSearch}>
-                بحث
-              </Button>
-            </Col>
-          </Row>
+        <Form.Group className="mb-3">
+          <Form.Label>اسم المشروع</Form.Label>
+          <Form.Control
+            value={editingProject.name}
+            onChange={(e) =>
+              setEditingProject({ ...editingProject, name: e.target.value })
+            }
+          />
         </Form.Group>
 
-        {/* 🔥 استبدال الخريطة القديمة بـ MapPicker */}
+        <Form.Group className="mb-3">
+          <Form.Label>تفاصيل المشروع</Form.Label>
+          <Form.Control
+            value={editingProject.details}
+            onChange={(e) =>
+              setEditingProject({ ...editingProject, details: e.target.value })
+            }
+          />
+        </Form.Group>
+
+        {/* 🔥 MapPicker فقط بدون بحث إضافي */}
         <Form.Group className="mb-3">
           <Form.Label>الخريطة</Form.Label>
 
           <MapPicker
             onSelect={(coords) => {
               if (coords) {
-                setMapPosition([coords.lat, coords.lng]);
+                setEditingProject({
+                  ...editingProject,
+                  location: { lat: coords.lat, lng: coords.lng },
+                });
               }
             }}
           />
 
-          {mapPosition && (
+          {editingProject.location && (
             <div className="mt-2 text-success">
-              الموقع الحالي: {mapPosition[0].toFixed(5)}, {mapPosition[1].toFixed(5)}
+              الموقع الحالي: 
+              {editingProject.location.lat.toFixed(5)}, 
+              {editingProject.location.lng.toFixed(5)}
             </div>
           )}
         </Form.Group>
 
-              <Row>
-                <Col>
-                  <Form.Group className="mb-3">
-                    <Form.Label>تاريخ البدء</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={editingProject.startDate}
-                      onChange={(e) =>
-                        setEditingProject({ ...editingProject, startDate: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
+        <Row>
+          <Col>
+            <Form.Group className="mb-3">
+              <Form.Label>تاريخ البدء</Form.Label>
+              <Form.Control
+                type="date"
+                value={editingProject.startDate}
+                onChange={(e) =>
+                  setEditingProject({ ...editingProject, startDate: e.target.value })
+                }
+              />
+            </Form.Group>
+          </Col>
 
-                <Col>
-                  <Form.Group className="mb-3">
-                    <Form.Label>تاريخ الانتهاء</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={editingProject.endDate}
-                      onChange={(e) =>
-                        setEditingProject({ ...editingProject, endDate: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+          <Col>
+            <Form.Group className="mb-3">
+              <Form.Label>تاريخ الانتهاء</Form.Label>
+              <Form.Control
+                type="date"
+                value={editingProject.endDate}
+                onChange={(e) =>
+                  setEditingProject({ ...editingProject, endDate: e.target.value })
+                }
+              />
+            </Form.Group>
+          </Col>
+        </Row>
 
-              <Row>
-                <Col md={8}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>الميزانية</Form.Label>
-                    <Form.Control
-                      type="number"
-                      value={editingProject.budget}
-                      onChange={(e) =>
-                        setEditingProject({ ...editingProject, budget: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                </Col>
+        <Row>
+          <Col md={8}>
+            <Form.Group className="mb-3">
+              <Form.Label>الميزانية</Form.Label>
+              <Form.Control
+                type="number"
+                value={editingProject.budget}
+                onChange={(e) =>
+                  setEditingProject({ ...editingProject, budget: e.target.value })
+                }
+              />
+            </Form.Group>
+          </Col>
 
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>العملة</Form.Label>
-                    <Form.Select
-                      value={editingProject.currency}
-                      onChange={(e) =>
-                        setEditingProject({ ...editingProject, currency: e.target.value })
-                      }
-                    >
-                      <option value="USD">دولار أمريكي</option>
-                      <option value="SYP">ليرة سورية</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row>
+          <Col md={4}>
+            <Form.Group className="mb-3">
+              <Form.Label>العملة</Form.Label>
+              <Form.Select
+                value={editingProject.currency}
+                onChange={(e) =>
+                  setEditingProject({ ...editingProject, currency: e.target.value })
+                }
+              >
+                <option value="USD">دولار أمريكي</option>
+                <option value="SYP">ليرة سورية</option>
+              </Form.Select>
+            </Form.Group>
+          </Col>
+        </Row>
 
-            </Form>
-          )}
-        </Modal.Body>
+      </Form>
+    )}
+  </Modal.Body>
 
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            إلغاء
-          </Button>
-          <Button variant="primary" onClick={handleSaveEdit}>
-            حفظ التعديلات
-          </Button>
-        </Modal.Footer>
-      </Modal>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowModal(false)}>
+      إلغاء
+    </Button>
+    <Button variant="primary" onClick={handleSaveEdit}>
+      حفظ التعديلات
+    </Button>
+  </Modal.Footer>
+</Modal>
+
     </div>
   );
 }
