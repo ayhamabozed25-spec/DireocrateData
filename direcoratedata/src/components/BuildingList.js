@@ -175,7 +175,8 @@ export default function BuildingList() {
               الموقع الحالي: {mapPosition[0].toFixed(5)}, {mapPosition[1].toFixed(5)}
             </div>
           )}
-        
+            </Form.Group>
+   
 
               {/* الملكية */}
               <Form.Group className="mb-3">
