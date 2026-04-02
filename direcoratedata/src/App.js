@@ -35,7 +35,7 @@ function App() {
 
   const canSeeRestricted =
     currentUser?.role === "systemAdmin" ||
-    currentUser?.role === "organizationManager";
+    currentUser?.role === "institutionManager";
   
  if (!currentUser) {
  console.log("cu" , currentUser);
