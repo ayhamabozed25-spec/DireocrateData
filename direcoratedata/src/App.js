@@ -67,7 +67,7 @@ function App() {
                   <Nav.Link as={Link} to="/services">الخدمات</Nav.Link>
                   <Nav.Link as={Link} to="/swot">SWOT</Nav.Link>
                   <Nav.Link as={Link} to="/Dashboard">Dashboard</Nav.Link>
-                 <Nav.Link as={Link} to="/ UsersManagement"> UsersManagement</Nav.Link>
+                 <Nav.Link as={Link} to="/UsersManagement"> UsersManagement</Nav.Link>
                 </>
               )}
 
