@@ -28,6 +28,7 @@ import ProjectChallengesList from "./components/ProjectChallengesList";
 import ProjectsList from "./components/ProjectsList";
 import Dashboard from "./components/Dashboard";
 import UsersManagement from "./components/UsersManagement";
+import  LoginPage from "./components/LoginPage";
 
 function App() {
   const { currentUser } = useAuth();
