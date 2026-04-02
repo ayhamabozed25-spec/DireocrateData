@@ -17,7 +17,7 @@ export default function UsersManagement() {
   };
 
   const saveUser = async () => {
-    const ref = doc(db, "users", editingUser.id);
+    const ref = doc(db, "dir_users", editingUser.id);
     await updateDoc(ref, editingUser);
     setEditingUser(null);
     loadUsers();
@@ -72,7 +72,7 @@ export default function UsersManagement() {
                   }
                 >
                   <option value="systemAdmin">مسؤول نظام</option>
-                  <option value="organizationManager">مدير مؤسسة</option>
+                  <option value="institutionManager">مدير مؤسسة</option>
                   <option value="departmentManager">مسؤول قسم</option>
                   <option value="divisionManager">مسؤول شعبة</option>
                   <option value="normalUser">مستخدم عادي</option>
