@@ -13,6 +13,8 @@ export default function UsersManagement() {
   useEffect(() => {
     loadUsers();
     loadDepartments();
+    loadDivisions(editingUser.departmentName);
+
   }, []);
 
   // تحميل المستخدمين
@@ -28,14 +30,16 @@ export default function UsersManagement() {
   };
 
   // تحميل الشعب حسب القسم المختار
-  const loadDivisions = async (departmentId) => {
-    const snap = await getDocs(collection(db, "divisions"));
-    const filtered = snap.docs
-      .map((d) => ({ id: d.id, ...d.data() }))
-      .filter((div) => div.departmentId === departmentId);
+const loadDivisions = async (departmentName) => {
+  const snap = await getDocs(collection(db, "divisions"));
 
-    setDivisions(filtered);
-  };
+  const filtered = snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .filter((div) => div.department === departmentName);
+
+  setDivisions(filtered);
+};
+
 
   // تحديث الشعب عند تغيير القسم
   useEffect(() => {
@@ -130,23 +134,24 @@ export default function UsersManagement() {
                 editingUser.role === "divisionManager") && (
                 <Form.Group className="mb-3">
                   <Form.Label>القسم</Form.Label>
-                  <Form.Select
-                    value={editingUser.departmentId || ""}
-                    onChange={(e) =>
-                      setEditingUser({
-                        ...editingUser,
-                        departmentId: e.target.value,
-                        divisionId: "", // تصفير الشعبة عند تغيير القسم
-                      })
-                    }
-                  >
-                    <option value="">اختر القسم</option>
-                    {departments.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </Form.Select>
+              <Form.Select
+  value={editingUser.departmentName || ""}
+  onChange={(e) =>
+    setEditingUser({
+      ...editingUser,
+      departmentName: e.target.value,
+      divisionId: "",
+    })
+  }
+>
+  <option value="">اختر القسم</option>
+  {departments.map((d) => (
+    <option key={d.id} value={d.name}>
+      {d.name}
+    </option>
+  ))}
+</Form.Select>
+
                 </Form.Group>
               )}
 
