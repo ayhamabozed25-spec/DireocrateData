@@ -38,6 +38,7 @@ function App() {
     currentUser?.role === "organizationManager";
   
  if (!currentUser) {
+   alert(currentUser);
   return <LoginPage />;
 }
   return (
