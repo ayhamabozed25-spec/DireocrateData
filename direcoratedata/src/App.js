@@ -38,7 +38,7 @@ function App() {
     currentUser?.role === "organizationManager";
   
  if (!currentUser) {
- console.log("cu" : . currentUser);
+ console.log("cu" , currentUser);
   return <LoginPage />;
 }
   return (
