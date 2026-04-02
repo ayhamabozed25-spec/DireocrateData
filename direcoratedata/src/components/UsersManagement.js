@@ -1,6 +1,6 @@
 import { Form, Button, Table, Modal } from "react-bootstrap";
 import { useState, useEffect } from "react";
-import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 
 export default function UsersManagement() {
@@ -13,8 +13,6 @@ export default function UsersManagement() {
   useEffect(() => {
     loadUsers();
     loadDepartments();
-    loadDivisions(editingUser.departmentName);
-
   }, []);
 
   // تحميل المستخدمين
@@ -29,24 +27,23 @@ export default function UsersManagement() {
     setDepartments(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   };
 
-  // تحميل الشعب حسب القسم المختار
-const loadDivisions = async (departmentName) => {
-  const snap = await getDocs(collection(db, "divisions"));
+  // تحميل الشعب حسب اسم القسم
+  const loadDivisions = async (departmentName) => {
+    const snap = await getDocs(collection(db, "divisions"));
 
-  const filtered = snap.docs
-    .map((d) => ({ id: d.id, ...d.data() }))
-    .filter((div) => div.department === departmentName);
+    const filtered = snap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((div) => div.department === departmentName);
 
-  setDivisions(filtered);
-};
-
+    setDivisions(filtered);
+  };
 
   // تحديث الشعب عند تغيير القسم
   useEffect(() => {
-    if (editingUser?.departmentId) {
-      loadDivisions(editingUser.departmentId);
+    if (editingUser?.departmentName) {
+      loadDivisions(editingUser.departmentName);
     }
-  }, [editingUser?.departmentId]);
+  }, [editingUser?.departmentName]);
 
   // حفظ التعديلات
   const saveUser = async () => {
@@ -78,8 +75,8 @@ const loadDivisions = async (departmentName) => {
               <td>{u.name}</td>
               <td>{u.email}</td>
               <td>{u.role}</td>
-              <td>{u.departmentId || "-"}</td>
-              <td>{u.divisionId || "-"}</td>
+              <td>{u.departmentName || "-"}</td>
+              <td>{u.divisionName || "-"}</td>
               <td>
                 <Button size="sm" onClick={() => setEditingUser(u)}>
                   تعديل
@@ -110,7 +107,16 @@ const loadDivisions = async (departmentName) => {
                 />
               </Form.Group>
 
-    
+              {/* البريد */}
+              <Form.Group className="mb-3">
+                <Form.Label>البريد الإلكتروني</Form.Label>
+                <Form.Control
+                  value={editingUser.email || ""}
+                  onChange={(e) =>
+                    setEditingUser({ ...editingUser, email: e.target.value })
+                  }
+                />
+              </Form.Group>
 
               {/* الدور */}
               <Form.Group className="mb-3">
@@ -134,24 +140,23 @@ const loadDivisions = async (departmentName) => {
                 editingUser.role === "divisionManager") && (
                 <Form.Group className="mb-3">
                   <Form.Label>القسم</Form.Label>
-              <Form.Select
-  value={editingUser.departmentName || ""}
-  onChange={(e) =>
-    setEditingUser({
-      ...editingUser,
-      departmentName: e.target.value,
-      divisionId: "",
-    })
-  }
->
-  <option value="">اختر القسم</option>
-  {departments.map((d) => (
-    <option key={d.id} value={d.name}>
-      {d.name}
-    </option>
-  ))}
-</Form.Select>
-
+                  <Form.Select
+                    value={editingUser.departmentName || ""}
+                    onChange={(e) =>
+                      setEditingUser({
+                        ...editingUser,
+                        departmentName: e.target.value,
+                        divisionName: "",
+                      })
+                    }
+                  >
+                    <option value="">اختر القسم</option>
+                    {departments.map((d) => (
+                      <option key={d.id} value={d.name}>
+                        {d.name}
+                      </option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
               )}
 
@@ -160,17 +165,17 @@ const loadDivisions = async (departmentName) => {
                 <Form.Group className="mb-3">
                   <Form.Label>الشعبة</Form.Label>
                   <Form.Select
-                    value={editingUser.divisionId || ""}
+                    value={editingUser.divisionName || ""}
                     onChange={(e) =>
                       setEditingUser({
                         ...editingUser,
-                        divisionId: e.target.value,
+                        divisionName: e.target.value,
                       })
                     }
                   >
                     <option value="">اختر الشعبة</option>
                     {divisions.map((div) => (
-                      <option key={div.id} value={div.id}>
+                      <option key={div.id} value={div.name}>
                         {div.name}
                       </option>
                     ))}
