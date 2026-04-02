@@ -12,7 +12,7 @@ export default function UsersManagement() {
   }, []);
 
   const loadUsers = async () => {
-    const snap = await getDocs(collection(db, "users"));
+    const snap = await getDocs(collection(db, "dir_users"));
     setUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
   };
 
