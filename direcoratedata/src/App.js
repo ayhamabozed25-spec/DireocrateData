@@ -35,7 +35,10 @@ function App() {
   const canSeeRestricted =
     currentUser?.role === "systemAdmin" ||
     currentUser?.role === "organizationManager";
-
+  
+ if (!currentUser) {
+  return <LoginPage />;
+}
   return (
     <Router>
       <Navbar bg="dark" variant="dark" expand="lg">
@@ -72,6 +75,8 @@ function App() {
       </Navbar>
 
       <Container className="mt-4">
+
+
         <Routes>
 
           {/* الأبنية */}
