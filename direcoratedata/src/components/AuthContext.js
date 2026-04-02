@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const ref = doc(db, "users", user.uid);
+        const ref = doc(db, "dir_users", user.uid);
         const snap = await getDoc(ref);
 
         if (snap.exists()) {
