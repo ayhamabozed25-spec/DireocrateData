@@ -1,45 +1,51 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button } from "react-bootstrap";
 import Select from "react-select";
 import { jobTitles } from "./jobTitles";
+import { useAuth } from "../components/AuthContext"; // استدعاء السياق
 
 export default function EditEmployee() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
   const [departments, setDepartments] = useState([]);
   const [divisions, setDivisions] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
-
   const [initial, setInitial] = useState(null);
 
   const [need, setNeed] = useState("");
-  const [IsStudent, setIsStudent] = useState("");
   const [qualification, setQualification] = useState("");
   const [university, setUniversity] = useState("");
   const [specialization, setSpecialization] = useState("");
+  const [IsStudent, setIsStudent] = useState("");
   const [jobTitle, setJobTitle] = useState("");
 
-  // ============================
-  // تحميل الأقسام
-  // ============================
+  // تحميل الأقسام حسب الدور
   useEffect(() => {
     const fetchDeps = async () => {
-      const snap = await getDocs(collection(db, "departments"));
-      setDepartments(snap.docs.map(d => ({
-        value: d.data().name,
-        label: d.data().name
-      })));
+      if (!currentUser) return;
+
+      let q;
+      if (currentUser.role === "institutionManager") {
+        q = query(collection(db, "departments"), where("institutionName", "==", currentUser.name));
+        const snap = await getDocs(q);
+        setDepartments(snap.docs.map(d => ({ value: d.data().name, label: d.data().name })));
+      } else if (currentUser.role === "departementManager" || currentUser.role === "divisionManager") {
+        setDepartments([{ value: currentUser.departmentName, label: currentUser.departmentName }]);
+        setSelectedDepartment({ value: currentUser.departmentName, label: currentUser.departmentName });
+      } else {
+        const snap = await getDocs(collection(db, "departments"));
+        setDepartments(snap.docs.map(d => ({ value: d.data().name, label: d.data().name })));
+      }
     };
     fetchDeps();
-  }, []);
+  }, [currentUser]);
 
-  // ============================
   // تحميل الشعب
-  // ============================
   useEffect(() => {
     const fetchDivs = async () => {
       const snap = await getDocs(collection(db, "divisions"));
@@ -52,9 +58,7 @@ export default function EditEmployee() {
     fetchDivs();
   }, []);
 
-  // ============================
   // تحميل بيانات الموظف
-  // ============================
   useEffect(() => {
     const loadEmployee = async () => {
       const ref = doc(db, "employees", id);
@@ -349,16 +353,14 @@ export default function EditEmployee() {
   // ============================
   // فلترة الشعب حسب القسم
   // ============================
+
+
   const filteredDivisions = selectedDepartment
     ? divisions.filter(div => div.department === selectedDepartment.value)
     : [];
 
-  // ============================
-  // حفظ التعديلات
-  // ============================
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const ref = doc(db, "employees", id);
 
     await updateDoc(ref, {
@@ -368,31 +370,29 @@ export default function EditEmployee() {
       phone: need === "شاغر" ? null : e.target.phone?.value || null,
       city: e.target.city.value,
       qualification,
-      otherQualification: e.target.otherQualification?.value || null,
-      university: university === "أخرى" ? e.target.otherUniversity.value : university,
-      specialization: specialization === "أخرى" ? e.target.otherSpecialization.value : specialization,
-      certificateSource: e.target.certificateSource?.value || null,
-      IsStudent: e.target.IsStudent?.value || null,
-      contract: e.target.contract.value,
+      university,
+      specialization,
+      IsStudent,
       jobTitle,
-      otherJobTitle: jobTitle === "أخرى" ? (e.target.otherJobTitle?.value || null) : null,
-      matchCertificate: e.target.matchCertificate?.value || null,
-      jobCategory: e.target.jobCategory.value,
-      salary: e.target.salary.value,
-      task: e.target.task.value,
       need,
-      department: need === "شاغر" ? null : e.target.department?.value || null,
-      division: need === "شاغر" ? null : e.target.division?.value || null,
+      department:
+        currentUser.role === "departementManager" || currentUser.role === "divisionManager"
+          ? currentUser.departmentName
+          : e.target.department?.value || null,
+      division:
+        currentUser.role === "divisionManager"
+          ? currentUser.divisionName
+          : e.target.division?.value || null,
+      managerEmail: currentUser?.email || null,
     });
 
     alert("تم تعديل بيانات الموظف بنجاح");
     navigate("/employees");
   };
 
-  // ============================
-  // واجهة التعديل
-  // ============================
   if (!initial) return <div className="p-3">جاري تحميل بيانات الموظف...</div>;
+
+  
 
   return (
     <div className="p-3">
@@ -676,33 +676,37 @@ export default function EditEmployee() {
           <>
             <Form.Group>
               <Form.Label>القسم</Form.Label>
-              <Select
-                options={departments}
-                name="department"
-                placeholder="اختر القسم"
-                isSearchable
-                defaultValue={
-                  initial.department
-                    ? { value: initial.department, label: initial.department }
-                    : null
-                }
-                onChange={(val) => setSelectedDepartment(val)}
-              />
+              {currentUser.role === "departementManager" || currentUser.role === "divisionManager" ? (
+                <Form.Control value={currentUser.departmentName} readOnly />
+              ) : (
+                <Select
+                  options={departments}
+                  name="department"
+                  placeholder="اختر القسم"
+                  isSearchable
+                  value={selectedDepartment}
+                  onChange={(val) => setSelectedDepartment(val)}
+                />
+              )}
             </Form.Group>
 
             <Form.Group>
               <Form.Label>الشعبة</Form.Label>
-              <Select
-                options={filteredDivisions}
-                name="division"
-                placeholder="اختر الشعبة"
-                isSearchable
-                defaultValue={
-                  initial.division
-                    ? { value: initial.division, label: initial.division }
-                    : null
-                }
-              />
+              {currentUser.role === "divisionManager" ? (
+                <Form.Control value={currentUser.divisionName} readOnly />
+              ) : (
+                <Select
+                  options={filteredDivisions}
+                  name="division"
+                  placeholder="اختر الشعبة"
+                  isSearchable
+                  defaultValue={
+                    initial.division
+                      ? { value: initial.division, label: initial.division }
+                      : null
+                  }
+                />
+              )}
             </Form.Group>
           </>
         )}
