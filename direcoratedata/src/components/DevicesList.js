@@ -1,42 +1,70 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { db } from "../firebase";
-import { Form, Button, Table, Modal ,Row , Col} from "react-bootstrap";
+import { Form, Button, Table, Modal, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
+import { useAuth } from "../components/AuthContext"; // استدعاء السياق
 
 export default function DevicesList() {
   const [devices, setDevices] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [showModal, setShowModal] = useState(false);
   const [editingDevice, setEditingDevice] = useState(null);
 
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
-  // تحميل الموظفين
+  // تحميل الموظفين حسب الدور
   useEffect(() => {
     const fetchEmployees = async () => {
-      const snapshot = await getDocs(collection(db, "employees"));
+      if (!currentUser) return;
+
+      let q;
+      if (currentUser.role === "institutionManager") {
+        q = query(collection(db, "employees"), where("institutionName", "==", currentUser.name));
+      } else if (currentUser.role === "departementManager") {
+        q = query(collection(db, "employees"), where("departmentName", "==", currentUser.departmentName));
+      } else if (currentUser.role === "divisionManager") {
+        q = query(collection(db, "employees"), where("divisionName", "==", currentUser.divisionName));
+      } else {
+        q = collection(db, "employees"); // مدير النظام يرى الجميع
+      }
+
+      const snapshot = await getDocs(q);
       const data = snapshot.docs.map(doc => ({
         value: doc.data().name,
         label: doc.data().name
       }));
       setEmployees(data);
     };
-    fetchEmployees();
-  }, []);
 
-  // تحميل الأجهزة
+    fetchEmployees();
+  }, [currentUser]);
+
+  // تحميل الأجهزة حسب الدور
   const loadDevices = async () => {
-    const snapshot = await getDocs(collection(db, "devices"));
+    if (!currentUser) return;
+
+    let q;
+    if (currentUser.role === "institutionManager") {
+      q = query(collection(db, "devices"), where("institutionName", "==", currentUser.name));
+    } else if (currentUser.role === "departementManager") {
+      q = query(collection(db, "devices"), where("departmentName", "==", currentUser.departmentName));
+    } else if (currentUser.role === "divisionManager") {
+      q = query(collection(db, "devices"), where("divisionName", "==", currentUser.divisionName));
+    } else {
+      q = collection(db, "devices"); // مدير النظام يرى الجميع
+    }
+
+    const snapshot = await getDocs(q);
     setDevices(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
   };
 
   useEffect(() => {
     loadDevices();
-  }, []);
+  }, [currentUser]);
 
   const handleEdit = (dev) => {
     setEditingDevice({ ...dev });
@@ -45,7 +73,10 @@ export default function DevicesList() {
 
   const handleSaveEdit = async () => {
     const ref = doc(db, "devices", editingDevice.id);
-    await updateDoc(ref, editingDevice);
+    await updateDoc(ref, {
+      ...editingDevice,
+      managerEmail: currentUser?.email || null, // تحديث البريد الحالي عند التعديل
+    });
     setShowModal(false);
     loadDevices();
   };
@@ -62,15 +93,73 @@ export default function DevicesList() {
     dev.model?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const brandOptions = {
-    "لاب توب": ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple", "أخرى"],
-    "سيرفر": ["Dell", "HP", "IBM", "Cisco", "Supermicro", "أخرى"],
-    "حاسوب مكتبي": ["Dell", "HP", "Lenovo", "Asus", "MSI", "أخرى"],
-    "تاب": ["Samsung", "Apple", "Huawei", "Lenovo", "أخرى"],
-    "طابعة": ["Canon", "HP", "Epson", "Brother", "أخرى"],
-    "راوتر": ["Cisco", "TP-Link", "Netgear", "Huawei", "أخرى"],
-    "أخرى": ["أخرى"]
-  };
+  return (
+    <div className="p-3">
+      <h3>الأجهزة</h3>
+
+      {/* زر إضافة يظهر فقط لغير مدير النظام */}
+      {currentUser?.role !== "systemAdmin" && (
+        <div className="d-flex justify-content-end mb-3">
+          <Button variant="primary" onClick={() => navigate("/add-device")}>
+            إضافة جهاز جديد
+          </Button>
+        </div>
+      )}
+
+      {/* البحث */}
+      <Form.Group className="mb-3">
+        <Form.Label className="fw-bold">بحث</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="ابحث عن جهاز..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </Form.Group>
+
+      {/* جدول الأجهزة */}
+      <Table striped bordered hover responsive>
+        <thead>
+          <tr>
+            <th>النوع</th>
+            <th>البراند</th>
+            <th>الموظف</th>
+            <th>الحالة</th>
+            {/* عمود الإجراءات يظهر فقط لغير مدير النظام */}
+            {currentUser?.role !== "systemAdmin" && <th>إجراءات</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {filteredDevices.map((dev) => (
+            <tr key={dev.id}>
+              <td>{dev.type}</td>
+              <td>{dev.brand}</td>
+              <td>{dev.employee}</td>
+              <td>{dev.status}</td>
+              {currentUser?.role !== "systemAdmin" && (
+                <td>
+                  <Button
+                    size="sm"
+                    variant="warning"
+                    className="me-2"
+                    onClick={() => handleEdit(dev)}
+                  >
+                    تعديل
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => handleDelete(dev.id)}
+                  >
+                    حذف
+                  </Button>
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+
 
   return (
     <div className="p-3">
