@@ -7,17 +7,20 @@ import { useAuth } from "../components/AuthContext";
 
 export default function AddDepartment() {
   const [employees, setEmployees] = useState([]);
-  const [depName, setDepName] = useState(""); // اسم القسم المدخل
+  const [depName, setDepName] = useState("");
   const { currentUser } = useAuth();
 
-  // تحميل الموظفين بناءً على اسم القسم المدخل
   useEffect(() => {
     const fetchEmployees = async () => {
-      if (!depName) {
+      if (!depName || !currentUser?.email) {
         setEmployees([]);
         return;
       }
-      const q = query(collection(db, "employees"), where("department", "==", depName));
+      const q = query(
+        collection(db, "employees"),
+        where("department", "==", depName),
+        where("managerEmail", "==", currentUser.email) // فلترة حسب المؤسسة
+      );
       const snapshot = await getDocs(q);
       const data = snapshot.docs.map(doc => ({
         value: doc.data().name,
@@ -26,11 +29,10 @@ export default function AddDepartment() {
       setEmployees(data);
     };
     fetchEmployees();
-  }, [depName]);
+  }, [depName, currentUser]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const name = e.target.name.value.trim();
     const head = e.target.head.value;
 
@@ -54,7 +56,6 @@ export default function AddDepartment() {
   return (
     <div className="p-3">
       <h3>إضافة قسم جديد</h3>
-
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>اسم القسم</Form.Label>
