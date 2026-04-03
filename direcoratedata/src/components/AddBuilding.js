@@ -2,13 +2,16 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import { useState } from "react";
-import MapPicker from "../components/MapPicker"; // تأكد من المسار الصحيح
+import MapPicker from "../components/MapPicker"; 
+import { useAuth } from "../components/AuthContext"; // استدعاء السياق
 
 export default function AddBuilding() {
   const [ownership, setOwnership] = useState("");
   const [structuralCondition, setStructuralCondition] = useState("");
   const [currency, setCurrency] = useState("دولار");
   const [location, setLocation] = useState(null);
+
+  const { currentUser } = useAuth(); // المستخدم الحالي
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,6 +48,9 @@ export default function AddBuilding() {
       fireAlarmSystem: e.target.fireAlarmSystem.value,
       fingerprintSystem: e.target.fingerprintSystem.value,
       location: location ? { lat: location.lat, lng: location.lng } : null,
+
+      // 🔑 إضافة البريد الإلكتروني للمستخدم الحالي
+      managerEmail: currentUser?.email || null,
     });
 
     alert("تم حفظ معلومات البناء بنجاح");
@@ -192,11 +198,9 @@ export default function AddBuilding() {
           </Form.Select>
         </Form.Group>
 
-        {/* 🔥 هنا نستخدم MapPicker الجديد */}
         <Form.Group className="mb-3">
           <Form.Label>اختر الموقع على الخريطة</Form.Label>
           <MapPicker onSelect={setLocation} />
-        
         </Form.Group>
 
         <Button type="submit" className="mt-3 w-100">
