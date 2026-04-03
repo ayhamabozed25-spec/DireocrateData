@@ -464,6 +464,6 @@ export default function DevicesList() {
   </Button>
 </Modal.Footer>
 </Modal>
-      </div>
+      
   );
 }
