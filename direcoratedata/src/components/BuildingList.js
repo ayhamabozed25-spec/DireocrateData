@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { db } from "../firebase";
-import { Form, Button, Table, Modal, Row, Col } from "react-bootstrap";
+import { Form, Button, Table, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import MapPicker from "../components/MapPicker";
- 
+import { useAuth } from "../components/AuthContext"; // استدعاء السياق
 
 export default function BuildingList() {
   const [buildings, setBuildings] = useState([]);
@@ -13,18 +13,30 @@ export default function BuildingList() {
   const [showModal, setShowModal] = useState(false);
   const [editingBuilding, setEditingBuilding] = useState(null);
   const [mapPosition, setMapPosition] = useState([35.523, 35.791]);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
+  // تحميل الأبنية الخاصة بالبريد الحالي
   const loadBuildings = async () => {
-    const snapshot = await getDocs(collection(db, "buildings"));
+    if (!currentUser) return;
+
+    let q;
+    if (currentUser.role === "systemAdmin") {
+      // مدير النظام يرى كل الأبنية
+      q = collection(db, "buildings");
+    } else {
+      // غير ذلك يرى الأبنية الخاصة ببريده فقط
+      q = query(collection(db, "buildings"), where("managerEmail", "==", currentUser.email));
+    }
+
+    const snapshot = await getDocs(q);
     setBuildings(snapshot.docs.map((docu) => ({ id: docu.id, ...docu.data() })));
   };
 
   useEffect(() => {
     loadBuildings();
-  }, []);
+  }, [currentUser]);
 
   const handleEdit = (building) => {
     setEditingBuilding({ ...building });
@@ -45,8 +57,6 @@ export default function BuildingList() {
     loadBuildings();
   };
 
-
-
   const filteredBuildings = buildings.filter((b) =>
     b.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -55,11 +65,14 @@ export default function BuildingList() {
     <div className="p-3">
       <h3>الأبنية</h3>
 
-      <div className="d-flex justify-content-end mb-3">
-        <Button variant="primary" onClick={() => navigate("/add-building")}>
-          إضافة بناء جديد
-        </Button>
-      </div>
+      {/* زر إضافة يظهر فقط لغير مدير النظام */}
+      {currentUser?.role !== "systemAdmin" && (
+        <div className="d-flex justify-content-end mb-3">
+          <Button variant="primary" onClick={() => navigate("/add-building")}>
+            إضافة بناء جديد
+          </Button>
+        </div>
+      )}
 
       <Form.Group className="mb-3">
         <Form.Label className="fw-bold">بحث</Form.Label>
@@ -79,7 +92,8 @@ export default function BuildingList() {
             <th>المكاتب</th>
             <th>الحالة الإنشائية</th>
             <th>السعة</th>
-            <th>إجراءات</th>
+            {/* عمود الإجراءات يظهر فقط لغير مدير النظام */}
+            {currentUser?.role !== "systemAdmin" && <th>إجراءات</th>}
           </tr>
         </thead>
         <tbody>
@@ -90,27 +104,30 @@ export default function BuildingList() {
               <td>{b.offices}</td>
               <td>{b.structuralCondition}</td>
               <td>{b.capacity}</td>
-              <td>
-                <Button
-                  size="sm"
-                  variant="warning"
-                  className="me-2"
-                  onClick={() => handleEdit(b)}
-                >
-                  تعديل
-                </Button>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => handleDelete(b.id)}
-                >
-                  حذف
-                </Button>
-              </td>
+              {currentUser?.role !== "systemAdmin" && (
+                <td>
+                  <Button
+                    size="sm"
+                    variant="warning"
+                    className="me-2"
+                    onClick={() => handleEdit(b)}
+                  >
+                    تعديل
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => handleDelete(b.id)}
+                  >
+                    حذف
+                  </Button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
       </Table>
+
 
       {/* نافذة التعديل */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
