@@ -1,9 +1,10 @@
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button } from "react-bootstrap";
-import { useState, useEffect } from "react";
 import Select from "react-select";
 import { jobTitles } from "./jobTitles";
+import { useAuth } from "../components/AuthContext"; // استدعاء السياق
 
 export default function AddEmployee() {
   const [departments, setDepartments] = useState([]);
@@ -11,18 +12,36 @@ export default function AddEmployee() {
   const [selectedDepartment, setSelectedDepartment] = useState(null);
 
   const [need, setNeed] = useState("");
-  const [IsStudent, setIsStudent] = useState("");
   const [qualification, setQualification] = useState("");
   const [university, setUniversity] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [jobTitle, setJobTitle] = useState("");
 
-  // ============================
-  // تحميل الأقسام
-  // ============================
+  const { currentUser } = useAuth(); // المستخدم الحالي
+
+  // تحميل الأقسام حسب الدور
   useEffect(() => {
     const fetchDepartments = async () => {
-      const snapshot = await getDocs(collection(db, "departments"));
+      if (!currentUser) return;
+
+      let q;
+      if (currentUser.role === "institutionManager") {
+        q = query(collection(db, "departments"), where("institutionName", "==", currentUser.name));
+      } else if (currentUser.role === "departementManager") {
+        // القسم الخاص بالمستخدم فقط
+        setDepartments([{ value: currentUser.departmentName, label: currentUser.departmentName }]);
+        setSelectedDepartment({ value: currentUser.departmentName, label: currentUser.departmentName });
+        return;
+      } else if (currentUser.role === "divisionManager") {
+        // القسم الخاص بالمستخدم فقط
+        setDepartments([{ value: currentUser.departmentName, label: currentUser.departmentName }]);
+        setSelectedDepartment({ value: currentUser.departmentName, label: currentUser.departmentName });
+        return;
+      } else {
+        q = collection(db, "departments"); // مدير النظام يرى الجميع
+      }
+
+      const snapshot = await getDocs(q);
       const data = snapshot.docs.map(doc => ({
         value: doc.data().name,
         label: doc.data().name
@@ -30,11 +49,9 @@ export default function AddEmployee() {
       setDepartments(data);
     };
     fetchDepartments();
-  }, []);
+  }, [currentUser]);
 
-  // ============================
   // تحميل الشعب
-  // ============================
   useEffect(() => {
     const fetchDivisions = async () => {
       const snapshot = await getDocs(collection(db, "divisions"));
@@ -48,9 +65,7 @@ export default function AddEmployee() {
     fetchDivisions();
   }, []);
 
-  // ============================
   // فلترة الشعب حسب القسم
-  // ============================
   const filteredDivisions = selectedDepartment
     ? divisions.filter(div => div.department === selectedDepartment.value)
     : [];
@@ -320,7 +335,7 @@ export default function AddEmployee() {
   // ============================
   // حفظ الموظف
   // ============================
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
 
     await addDoc(collection(db, "employees"), {
@@ -330,25 +345,19 @@ export default function AddEmployee() {
       phone: need === "شاغر" ? null : e.target.phone?.value || null,
       city: e.target.city.value,
       qualification,
-      otherQualification: e.target.otherQualification?.value || null,
-      university: university === "أخرى" ? e.target.otherUniversity.value : university,
-      specialization: specialization === "أخرى" ? e.target.otherSpecialization.value : specialization,
-      certificateSource: e.target.certificateSource?.value || null,
-      IsStudent: e.target.IsStudent?.value || null,
-      contract: e.target.contract.value,
+      university,
+      specialization,
       jobTitle,
-      otherJobTitle: jobTitle === "أخرى" ? (e.target.otherJobTitle?.value || null) : null,
-      matchCertificate: e.target.matchCertificate?.value || null,
-      jobCategory: e.target.jobCategory.value,
-      salary: e.target.salary.value,
-      task: e.target.task.value,
       need,
-      department: need === "شاغر" ? null : e.target.department?.value || null,
-      division: need === "شاغر" ? null : e.target.division?.value || null,
+      department: selectedDepartment?.value || currentUser?.departmentName || null,
+      division:
+        currentUser.role === "divisionManager"
+          ? currentUser.divisionName
+          : e.target.division?.value || null,
+      managerEmail: currentUser?.email || null, // حفظ البريد الحالي
     });
 
     alert("تم حفظ الموظف بنجاح");
-
     e.target.reset();
     setNeed("");
     setQualification("");
@@ -609,27 +618,36 @@ export default function AddEmployee() {
         </Form.Group>
 
         {/* القسم والشعبة تظهر فقط عند اختيار متوفر */}
-        {need === "متوفر" && (
+   {need === "متوفر" && (
           <>
             <Form.Group>
               <Form.Label>القسم</Form.Label>
-              <Select
-                options={departments}
-                name="department"
-                placeholder="اختر القسم"
-                isSearchable
-                onChange={(val) => setSelectedDepartment(val)}
-              />
+              {currentUser.role === "departementManager" || currentUser.role === "divisionManager" ? (
+                <Form.Control value={currentUser.departmentName} readOnly />
+              ) : (
+                <Select
+                  options={departments}
+                  name="department"
+                  placeholder="اختر القسم"
+                  isSearchable
+                  value={selectedDepartment}
+                  onChange={(val) => setSelectedDepartment(val)}
+                />
+              )}
             </Form.Group>
 
             <Form.Group>
               <Form.Label>الشعبة</Form.Label>
-              <Select
-                options={filteredDivisions}
-                name="division"
-                placeholder="اختر الشعبة"
-                isSearchable
-              />
+              {currentUser.role === "divisionManager" ? (
+                <Form.Control value={currentUser.divisionName} readOnly />
+              ) : (
+                <Select
+                  options={filteredDivisions}
+                  name="division"
+                  placeholder="اختر الشعبة"
+                  isSearchable
+                />
+              )}
             </Form.Group>
           </>
         )}
