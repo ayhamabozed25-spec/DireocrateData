@@ -90,13 +90,16 @@ function App() {
                   <Nav.Link as={Link} to="/UsersManagement">UsersManagement</Nav.Link>
                 </>
               )}
-            </Nav>
 
+                <>
                 <Nav.Link as={Link} to="/employees">الموظفون</Nav.Link>
               <Nav.Link as={Link} to="/devices">الأجهزة</Nav.Link>
               <Nav.Link as={Link} to="/cars">الآليات</Nav.Link>
               <Nav.Link as={Link} to="/furniture">الأثاث</Nav.Link>
-  
+              <>
+                  
+            </Nav>
+               
             {/* اسم المستخدم + زر تسجيل الخروج */}
             <Nav>
               <Navbar.Text className="me-3 text-light">
