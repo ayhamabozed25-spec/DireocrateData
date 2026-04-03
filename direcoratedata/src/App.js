@@ -91,12 +91,12 @@ function App() {
                 </>
               )}
 
-                <>
+                  <>
                 <Nav.Link as={Link} to="/employees">الموظفون</Nav.Link>
               <Nav.Link as={Link} to="/devices">الأجهزة</Nav.Link>
               <Nav.Link as={Link} to="/cars">الآليات</Nav.Link>
               <Nav.Link as={Link} to="/furniture">الأثاث</Nav.Link>
-              <>
+                  </>
                   
             </Nav>
                
