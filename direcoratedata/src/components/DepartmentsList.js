@@ -15,31 +15,16 @@ export default function DepartmentsList() {
   const [editingDep, setEditingDep] = useState(null);
 
   const navigate = useNavigate();
-  const { currentUser } = useAuth(); // المستخدم الحالي
-
-  // تحميل الموظفين
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      const snapshot = await getDocs(collection(db, "employees"));
-      const data = snapshot.docs.map(doc => ({
-        value: doc.data().name,
-        label: doc.data().name
-      }));
-      setEmployees(data);
-    };
-    fetchEmployees();
-  }, []);
+  const { currentUser } = useAuth();
 
   // تحميل الأقسام الخاصة بالمستخدم الحالي
   const loadDepartments = async () => {
     if (!currentUser) return;
 
     let q;
-    // إذا كان المستخدم مدير النظام نعرض كل الأقسام
     if (currentUser.role === "admin") {
       q = collection(db, "departments");
     } else {
-      // غير ذلك نعرض الأقسام التي أنشأها هو فقط
       q = query(collection(db, "departments"), where("managerEmail", "==", currentUser.email));
     }
 
@@ -51,9 +36,18 @@ export default function DepartmentsList() {
     loadDepartments();
   }, [currentUser]);
 
-  const handleEdit = (dep) => {
+  // عند فتح نافذة التعديل، نجلب الموظفين التابعين لهذا القسم فقط
+  const handleEdit = async (dep) => {
     setEditingDep({ ...dep });
     setShowModal(true);
+
+    const q = query(collection(db, "employees"), where("department", "==", dep.name));
+    const snapshot = await getDocs(q);
+    const data = snapshot.docs.map(doc => ({
+      value: doc.data().name,
+      label: doc.data().name
+    }));
+    setEmployees(data);
   };
 
   const handleSaveEdit = async () => {
@@ -77,7 +71,6 @@ export default function DepartmentsList() {
     <div className="p-3">
       <h3>الأقسام</h3>
 
-      {/* زر إضافة يظهر فقط لغير المدير العام */}
       {currentUser?.role !== "admin" && (
         <div className="d-flex justify-content-end mb-3">
           <Button variant="primary" onClick={() => navigate("/add-department")}>
@@ -86,7 +79,6 @@ export default function DepartmentsList() {
         </div>
       )}
 
-      {/* البحث */}
       <Form.Group className="mb-3">
         <Form.Label className="fw-bold">بحث</Form.Label>
         <Form.Control
@@ -97,13 +89,11 @@ export default function DepartmentsList() {
         />
       </Form.Group>
 
-      {/* جدول الأقسام */}
       <Table striped bordered hover responsive>
         <thead>
           <tr>
             <th>اسم القسم</th>
             <th>رئيس القسم</th>
-            {/* عمود الإجراءات يظهر فقط لغير المدير العام */}
             {currentUser?.role !== "admin" && <th>إجراءات</th>}
           </tr>
         </thead>
@@ -136,7 +126,6 @@ export default function DepartmentsList() {
         </tbody>
       </Table>
 
-      {/* نافذة التعديل */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>تعديل القسم</Modal.Title>
