@@ -1,42 +1,71 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, Table, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
+import { useAuth } from "../components/AuthContext";
 
 export default function CarsList() {
   const [cars, setCars] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
   const [showModal, setShowModal] = useState(false);
   const [editingCar, setEditingCar] = useState(null);
 
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
-  // تحميل الموظفين
+  // تحميل الموظفين (يمكنك لاحقًا فلترتهم بنفس منطق الصلاحيات)
   useEffect(() => {
-    const fetchEmployees = async () => {
-      const snapshot = await getDocs(collection(db, "employees"));
-      const data = snapshot.docs.map(doc => ({
-        value: doc.data().name,
-        label: doc.data().name
-      }));
-      setEmployees(data);
-    };
-    fetchEmployees();
-  }, []);
+  const fetchEmployees = async () => {
+    if (!currentUser) return;
 
-  // تحميل الآليات
+    let q;
+    if (currentUser.role === "institutionManager") {
+      q = query(collection(db, "employees"), where("institutionName", "==", currentUser.name));
+    } else if (currentUser.role === "departementManager") {
+      q = query(collection(db, "employees"), where("departmentName", "==", currentUser.departmentName));
+    } else if (currentUser.role === "divisionManager") {
+      q = query(collection(db, "employees"), where("divisionName", "==", currentUser.divisionName));
+    } else {
+      q = collection(db, "employees"); // مدير النظام يرى الجميع
+    }
+
+    const snapshot = await getDocs(q);
+    const data = snapshot.docs.map(doc => ({
+      value: doc.data().name,
+      label: doc.data().name
+    }));
+    setEmployees(data);
+  };
+
+  fetchEmployees();
+}, [currentUser]);
+
+  // تحميل الآليات حسب الدور
   const loadCars = async () => {
-    const snapshot = await getDocs(collection(db, "cars"));
-    setCars(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    if (!currentUser) return;
+
+    let q;
+    if (currentUser.role === "institutionManager") {
+      q = query(collection(db, "cars"), where("institutionName", "==", currentUser.name));
+    } else if (currentUser.role === "departementManager") {
+      q = query(collection(db, "cars"), where("departmentName", "==", currentUser.departmentName));
+    } else if (currentUser.role === "divisionManager") {
+      q = query(collection(db, "cars"), where("divisionName", "==", currentUser.divisionName));
+    } else {
+      // مدير النظام يرى الجميع
+      q = collection(db, "cars");
+    }
+
+    const snapshot = await getDocs(q);
+    setCars(snapshot.docs.map(docu => ({ id: docu.id, ...docu.data() })));
   };
 
   useEffect(() => {
     loadCars();
-  }, []);
+  }, [currentUser]);
 
   const handleEdit = (car) => {
     setEditingCar({ ...car });
@@ -60,25 +89,18 @@ export default function CarsList() {
     car.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const carNamesOptions = {
-    "سيارة خدمة": ["سبورتاج", "توسان", "كيا ريو", "هيونداي النترا", "أخرى"],
-    "مركبة زراعية": ["جرار", "كومباين", "أخرى"],
-    "سيارة إسعاف": ["مرسيدس سبرينتر", "فورد ترانزيت", "أخرى"],
-    "شاحنة": ["فولفو FH", "مرسيدس أكتروس", "أخرى"],
-    "باص": ["هيونداي كاونتي", "مرسيدس ميني باص", "أخرى"],
-    "أخرى": ["أخرى"]
-  };
-
   return (
     <div className="p-3">
       <h3>الآليات</h3>
 
-      {/* زر إضافة */}
-      <div className="d-flex justify-content-end mb-3">
-        <Button variant="primary" onClick={() => navigate("/add-car")}>
-          إضافة آلية جديدة
-        </Button>
-      </div>
+      {/* زر إضافة يظهر فقط لغير مدير النظام */}
+      {currentUser?.role !== "systemAdmin" && (
+        <div className="d-flex justify-content-end mb-3">
+          <Button variant="primary" onClick={() => navigate("/add-car")}>
+            إضافة آلية جديدة
+          </Button>
+        </div>
+      )}
 
       {/* البحث */}
       <Form.Group className="mb-3">
@@ -99,7 +121,8 @@ export default function CarsList() {
             <th>الاسم</th>
             <th>الموظف</th>
             <th>الحالة</th>
-            <th>إجراءات</th>
+            {/* عمود الإجراءات يظهر فقط لغير مدير النظام */}
+            {currentUser?.role !== "systemAdmin" && <th>إجراءات</th>}
           </tr>
         </thead>
         <tbody>
@@ -109,27 +132,31 @@ export default function CarsList() {
               <td>{car.name}</td>
               <td>{car.employee}</td>
               <td>{car.status}</td>
-              <td>
-                <Button
-                  size="sm"
-                  variant="warning"
-                  className="me-2"
-                  onClick={() => handleEdit(car)}
-                >
-                  تعديل
-                </Button>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => handleDelete(car.id)}
-                >
-                  حذف
-                </Button>
-              </td>
+              {currentUser?.role !== "systemAdmin" && (
+                <td>
+                  <Button
+                    size="sm"
+                    variant="warning"
+                    className="me-2"
+                    onClick={() => handleEdit(car)}
+                  >
+                    تعديل
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => handleDelete(car.id)}
+                  >
+                    حذف
+                  </Button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
       </Table>
+
+
 
       {/* نافذة التعديل */}
     <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
