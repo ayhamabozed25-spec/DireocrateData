@@ -33,9 +33,9 @@ import  LoginPage from "./components/LoginPage";
 function App() {
   const { currentUser } = useAuth();
 
-  const canSeeRestricted =
-    currentUser?.role === "systemAdmin" ||
-    currentUser?.role === "institutionManager";
+  const systemAdmin = currentUser?.role === "systemAdmin" ;
+   const institutionManager = currentUser?.role === "institutionManager" ;
+
   
  if (!currentUser) {
  console.log("cu" , currentUser);
@@ -58,8 +58,8 @@ function App() {
               <Nav.Link as={Link} to="/cars">الآليات</Nav.Link>
               <Nav.Link as={Link} to="/furniture">الأثاث</Nav.Link>
 
-              {/* روابط خاصة بالمدير والإدمن فقط */}
-              {canSeeRestricted && (
+              {/* روابط خاصة بالمدير  فقط */}
+              {institutionManager && (
                 <>
                   <Nav.Link as={Link} to="/buildings">الأبنية</Nav.Link>
                   <Nav.Link as={Link} to="/projects">المشاريع</Nav.Link>
@@ -67,6 +67,12 @@ function App() {
                   <Nav.Link as={Link} to="/services">الخدمات</Nav.Link>
                   <Nav.Link as={Link} to="/swot">SWOT</Nav.Link>
                   <Nav.Link as={Link} to="/Dashboard">Dashboard</Nav.Link>
+            
+                </>
+              )}
+
+           {systemAdmin && (
+                <>
                  <Nav.Link as={Link} to="/UsersManagement"> UsersManagement</Nav.Link>
                 </>
               )}
