@@ -3,6 +3,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, Row, Col } from "react-bootstrap";
 import { syrianDirectorates } from "./directorates";
+import { useAuth } from "../components/AuthContext"; // استدعاء السياق
 
 export default function AddService() {
   const [target, setTarget] = useState("");
@@ -17,6 +18,8 @@ export default function AddService() {
 
   const [timeUnit, setTimeUnit] = useState("يوم");
 
+  const { currentUser } = useAuth(); // المستخدم الحالي
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -25,8 +28,7 @@ export default function AddService() {
       details: e.target.details.value,
       target: target === "أخرى" ? otherTarget : target,
       condition: e.target.condition.value,
-      otherInstitution:
-        institution === "أخرى" ? otherInstitution : institution,
+      otherInstitution: institution === "أخرى" ? otherInstitution : institution,
       reason: e.target.reason.value,
       gettingService: e.target.gettingService.value,
       cost:
@@ -36,10 +38,21 @@ export default function AddService() {
       timeCost: `${e.target.timeCost.value} ${timeUnit}`,
       output: e.target.output.value,
       beneficiaries: e.target.beneficiaries.value,
+
+      // 🔑 إضافة البريد الإلكتروني للمستخدم الحالي
+      managerEmail: currentUser?.email || null,
     });
 
     alert("تم حفظ الخدمة بنجاح");
     e.target.reset();
+    setTarget("");
+    setOtherTarget("");
+    setInstitution("");
+    setOtherInstitution("");
+    setCostType("مجاني بالكامل");
+    setCostValue("");
+    setCostCurrency("USD");
+    setTimeUnit("يوم");
   };
 
   return (
@@ -47,7 +60,6 @@ export default function AddService() {
       <h3>إضافة خدمة جديدة</h3>
 
       <Form onSubmit={handleSubmit}>
-
         <Form.Group className="mb-3">
           <Form.Label>اسم الخدمة *</Form.Label>
           <Form.Control name="name" required />
@@ -86,7 +98,7 @@ export default function AddService() {
           </Form.Group>
         )}
 
-        {/* حالة الخدمة */}
+        {/* شروط الخدمة */}
         <Form.Group className="mb-3">
           <Form.Label>شروط الحصول على الخدمة *</Form.Label>
           <Form.Control as="textarea" rows={3} name="condition" required />
@@ -104,6 +116,7 @@ export default function AddService() {
             {syrianDirectorates.map((d, i) => (
               <option key={i} value={d}>{d}</option>
             ))}
+            <option value="أخرى">أخرى</option>
           </Form.Select>
         </Form.Group>
 
