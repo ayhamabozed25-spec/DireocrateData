@@ -1,8 +1,9 @@
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, Row, Col } from "react-bootstrap";
-import { useState, useEffect } from "react";
 import Select from "react-select";
+import { useAuth } from "../components/AuthContext"; // استدعاء السياق
 
 export default function AddDevice() {
   const [employees, setEmployees] = useState([]);
@@ -14,17 +15,34 @@ export default function AddDevice() {
   const [processor, setProcessor] = useState("");
   const [costCurrency, setCostCurrency] = useState("USD");
 
+  const { currentUser } = useAuth(); // المستخدم الحالي
+
+  // جلب الموظفين وفق الدور
   useEffect(() => {
     const fetchEmployees = async () => {
-      const snapshot = await getDocs(collection(db, "employees"));
+      if (!currentUser) return;
+
+      let q;
+      if (currentUser.role === "institutionManager") {
+        q = query(collection(db, "employees"), where("institutionName", "==", currentUser.name));
+      } else if (currentUser.role === "departementManager") {
+        q = query(collection(db, "employees"), where("departmentName", "==", currentUser.departmentName));
+      } else if (currentUser.role === "divisionManager") {
+        q = query(collection(db, "employees"), where("divisionName", "==", currentUser.divisionName));
+      } else {
+        q = collection(db, "employees"); // مدير النظام يرى الجميع
+      }
+
+      const snapshot = await getDocs(q);
       const data = snapshot.docs.map(doc => ({
         value: doc.data().name,
         label: doc.data().name
       }));
       setEmployees(data);
     };
+
     fetchEmployees();
-  }, []);
+  }, [currentUser]);
 
   const brandOptions = {
     "لاب توب": ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple", "أخرى"],
@@ -54,6 +72,12 @@ export default function AddDevice() {
       priority: status === "معطل" ? e.target.priority?.value : null,
       description: e.target.description?.value || null,
       notes: e.target.notes?.value || null,
+
+      // 🔑 إضافة البريد الحالي والتبعية
+      managerEmail: currentUser?.email || null,
+      institutionName: currentUser?.name || null,
+      departmentName: currentUser?.departmentName || null,
+      divisionName: currentUser?.divisionName || null,
     });
 
     alert("تم حفظ الجهاز بنجاح");
@@ -64,7 +88,7 @@ export default function AddDevice() {
     setStatus("");
     setProcessor("");
   };
-
+  
   return (
     <div className="p-3">
       <h3>إضافة جهاز جديد</h3>
