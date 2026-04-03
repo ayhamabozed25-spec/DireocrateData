@@ -508,7 +508,5 @@ export default function DevicesList() {
 </Modal.Footer>
 </Modal>
 
-
-    </div>
   );
 }
