@@ -77,6 +77,8 @@ function App() {
               {/* روابط خاصة بمدير المؤسسة */}
               {institutionManager && (
                 <>
+                  <Nav.Link as={Link} to="/Departments">الأقسام</Nav.Link>
+                 <Nav.Link as={Link} to="/divisions">الشعب</Nav.Link>
                   <Nav.Link as={Link} to="/buildings">الأبنية</Nav.Link>
                   <Nav.Link as={Link} to="/projects">المشاريع</Nav.Link>
                   <Nav.Link as={Link} to="/project-challenges">تحديات المشاريع</Nav.Link>
