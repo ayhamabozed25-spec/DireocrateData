@@ -190,7 +190,7 @@ function App() {
           <Route
             path="/add"
             element={
-              (systemAdmin || institutionManger) ? (
+              (systemAdmin || institutionManager) ? (
                 <AddService />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
