@@ -33,9 +33,10 @@ import  LoginPage from "./components/LoginPage";
 function App() {
   const { currentUser } = useAuth();
 
-  const systemAdmin = currentUser?.role === "systemAdmin" ;
+   const systemAdmin = currentUser?.role === "systemAdmin" ;
    const institutionManager = currentUser?.role === "institutionManager" ;
-
+   const divisionManager = currentUser?.role === "divisionManager" ;
+   const departementManager = currentUser?.role === "departementManager" ;
   
  if (!currentUser) {
  console.log("cu" , currentUser);
@@ -51,13 +52,20 @@ function App() {
             <Nav className="me-auto">
 
               {/* روابط متاحة للجميع */}
-              <Nav.Link as={Link} to="/departments">الأقسام</Nav.Link>
-              <Nav.Link as={Link} to="/divisions">الشعب</Nav.Link>
+             
+             
               <Nav.Link as={Link} to="/employees">الموظفون</Nav.Link>
               <Nav.Link as={Link} to="/devices">الأجهزة</Nav.Link>
               <Nav.Link as={Link} to="/cars">الآليات</Nav.Link>
               <Nav.Link as={Link} to="/furniture">الأثاث</Nav.Link>
 
+             {departementManager && (
+                <>
+                   <Nav.Link as={Link} to="/divisions">الشعب</Nav.Link>
+            
+                </>
+              )}
+  
               {/* روابط خاصة بالمدير  فقط */}
               {institutionManager && (
                 <>
