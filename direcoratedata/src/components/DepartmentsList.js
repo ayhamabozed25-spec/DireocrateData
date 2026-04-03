@@ -37,18 +37,27 @@ export default function DepartmentsList() {
   }, [currentUser]);
 
   // عند فتح نافذة التعديل، نجلب الموظفين التابعين لهذا القسم فقط
-  const handleEdit = async (dep) => {
-    setEditingDep({ ...dep });
-    setShowModal(true);
+// داخل handleEdit نجلب الموظفين حسب القسم والبريد الحالي
+const handleEdit = async (dep) => {
+  setEditingDep({ ...dep });
+  setShowModal(true);
 
-    const q = query(collection(db, "employees"), where("department", "==", dep.name));
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map(doc => ({
-      value: doc.data().name,
-      label: doc.data().name
-    }));
-    setEmployees(data);
-  };
+  if (!currentUser?.email) return;
+
+  const q = query(
+    collection(db, "employees"),
+    where("department", "==", dep.name),
+    where("managerEmail", "==", currentUser.email) // فلترة حسب المؤسسة
+  );
+
+  const snapshot = await getDocs(q);
+  const data = snapshot.docs.map(doc => ({
+    value: doc.data().name,
+    label: doc.data().name
+  }));
+  setEmployees(data);
+};
+
 
   const handleSaveEdit = async () => {
     const ref = doc(db, "departments", editingDep.id);
