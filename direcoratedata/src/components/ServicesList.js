@@ -58,6 +58,80 @@ export default function ServicesList() {
     loadServices();
   };
 
+  import { useState, useEffect } from "react";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "../firebase";
+import {
+  Form,
+  Button,
+  Table,
+  Modal,
+  Row,
+  Col,
+  Badge,
+} from "react-bootstrap";
+import { syrianDirectorates } from "./directorates";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../components/AuthContext"; // استدعاء السياق
+
+export default function ServicesList() {
+  const [services, setServices] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterTarget, setFilterTarget] = useState("");
+  const [filterInstitution, setFilterInstitution] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [editingService, setEditingService] = useState(null);
+
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
+  // تحميل الخدمات الخاصة بالبريد الحالي
+  const loadServices = async () => {
+    if (!currentUser) return;
+
+    let q;
+    if (currentUser.role === "systemAdmin") {
+      // مدير النظام يرى كل الخدمات
+      q = collection(db, "services");
+    } else {
+      // غير ذلك يرى الخدمات الخاصة ببريده فقط
+      q = query(collection(db, "services"), where("managerEmail", "==", currentUser.email));
+    }
+
+    const snapshot = await getDocs(q);
+    setServices(snapshot.docs.map((docu) => ({ id: docu.id, ...docu.data() })));
+  };
+
+  useEffect(() => {
+    loadServices();
+  }, [currentUser]);
+
+  const handleEdit = (service) => {
+    setEditingService({ ...service });
+    setShowModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    const ref = doc(db, "services", editingService.id);
+    await updateDoc(ref, editingService);
+    setShowModal(false);
+    loadServices();
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("هل تريد حذف هذه الخدمة؟")) return;
+    await deleteDoc(doc(db, "services", id));
+    loadServices();
+  };
+
   const filteredServices = services.filter((service) => {
     const matchesSearch =
       service.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -65,7 +139,6 @@ export default function ServicesList() {
       service.target?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesTarget = filterTarget ? service.target === filterTarget : true;
-
     const matchesInstitution = filterInstitution
       ? service.otherInstitution === filterInstitution
       : true;
@@ -77,12 +150,14 @@ export default function ServicesList() {
     <div className="p-3">
       <h3>عرض الخدمات</h3>
 
-      {/* زر إضافة خدمة */}
-      <div className="d-flex justify-content-end mb-3">
-        <Button variant="primary" onClick={() => navigate("/add")}>
-          إضافة خدمة جديدة
-        </Button>
-      </div>
+      {/* زر إضافة يظهر فقط لغير مدير النظام */}
+      {currentUser?.role !== "systemAdmin" && (
+        <div className="d-flex justify-content-end mb-3">
+          <Button variant="primary" onClick={() => navigate("/add")}>
+            إضافة خدمة جديدة
+          </Button>
+        </div>
+      )}
 
       {/* 🔍 البحث */}
       <Form.Group className="mb-3">
@@ -137,7 +212,8 @@ export default function ServicesList() {
             <th>الكلفة</th>
             <th>الزمن</th>
             <th>المستفيدين</th>
-            <th>إجراءات</th>
+            {/* عمود الإجراءات يظهر فقط لغير مدير النظام */}
+            {currentUser?.role !== "systemAdmin" && <th>إجراءات</th>}
           </tr>
         </thead>
         <tbody>
@@ -155,27 +231,31 @@ export default function ServicesList() {
               </td>
               <td>{service.timeCost}</td>
               <td>{service.beneficiaries}</td>
-              <td>
-                <Button
-                  size="sm"
-                  variant="warning"
-                  className="me-2"
-                  onClick={() => handleEdit(service)}
-                >
-                  تعديل
-                </Button>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => handleDelete(service.id)}
-                >
-                  حذف
-                </Button>
-              </td>
+              {currentUser?.role !== "systemAdmin" && (
+                <td>
+                  <Button
+                    size="sm"
+                    variant="warning"
+                    className="me-2"
+                    onClick={() => handleEdit(service)}
+                  >
+                    تعديل
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => handleDelete(service.id)}
+                  >
+                    حذف
+                  </Button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
       </Table>
+
+  
 
       {/* نافذة التعديل */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
