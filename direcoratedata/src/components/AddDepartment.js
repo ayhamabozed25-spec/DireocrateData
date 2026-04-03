@@ -1,17 +1,24 @@
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import Select from "react-select";
-import { useAuth } from "../components/AuthContext"; // تأكد من المسار الصحيح
+import { useAuth } from "../components/AuthContext";
 
 export default function AddDepartment() {
   const [employees, setEmployees] = useState([]);
-  const { currentUser } = useAuth(); // جلب المستخدم الحالي
+  const [depName, setDepName] = useState(""); // اسم القسم المدخل
+  const { currentUser } = useAuth();
 
+  // تحميل الموظفين بناءً على اسم القسم المدخل
   useEffect(() => {
     const fetchEmployees = async () => {
-      const snapshot = await getDocs(collection(db, "employees"));
+      if (!depName) {
+        setEmployees([]);
+        return;
+      }
+      const q = query(collection(db, "employees"), where("department", "==", depName));
+      const snapshot = await getDocs(q);
       const data = snapshot.docs.map(doc => ({
         value: doc.data().name,
         label: doc.data().name
@@ -19,7 +26,7 @@ export default function AddDepartment() {
       setEmployees(data);
     };
     fetchEmployees();
-  }, []);
+  }, [depName]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,15 +39,16 @@ export default function AddDepartment() {
       return;
     }
 
-    // إضافة البريد الإلكتروني للمستخدم الحالي
     await addDoc(collection(db, "departments"), { 
       name, 
       head, 
-      managerEmail: currentUser?.email // هذا هو المفتاح
+      managerEmail: currentUser?.email
     });
 
     alert("تم حفظ القسم بنجاح");
     e.target.reset();
+    setEmployees([]);
+    setDepName("");
   };
 
   return (
@@ -50,7 +58,11 @@ export default function AddDepartment() {
       <Form onSubmit={handleSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>اسم القسم</Form.Label>
-          <Form.Control name="name" required />
+          <Form.Control 
+            name="name" 
+            required 
+            onChange={(e) => setDepName(e.target.value.trim())} 
+          />
         </Form.Group>
 
         <Form.Group className="mb-3">
