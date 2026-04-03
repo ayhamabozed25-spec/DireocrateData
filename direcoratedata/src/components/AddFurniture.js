@@ -1,27 +1,44 @@
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button } from "react-bootstrap";
-import { useState, useEffect } from "react";
 import Select from "react-select";
+import { useAuth } from "../components/AuthContext"; // استدعاء السياق
 
 export default function AddFurniture() {
   const [employees, setEmployees] = useState([]);
-
   const [need, setNeed] = useState("");
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
 
+  const { currentUser } = useAuth(); // المستخدم الحالي
+
+  // جلب الموظفين حسب الدور
   useEffect(() => {
     const fetchEmployees = async () => {
-      const snapshot = await getDocs(collection(db, "employees"));
+      if (!currentUser) return;
+
+      let q;
+      if (currentUser.role === "institutionManager") {
+        q = query(collection(db, "employees"), where("institutionName", "==", currentUser.name));
+      } else if (currentUser.role === "departementManager") {
+        q = query(collection(db, "employees"), where("departmentName", "==", currentUser.departmentName));
+      } else if (currentUser.role === "divisionManager") {
+        q = query(collection(db, "employees"), where("divisionName", "==", currentUser.divisionName));
+      } else {
+        q = collection(db, "employees"); // مدير النظام يرى الجميع
+      }
+
+      const snapshot = await getDocs(q);
       const data = snapshot.docs.map(doc => ({
         value: doc.data().name,
         label: doc.data().name
       }));
       setEmployees(data);
     };
+
     fetchEmployees();
-  }, []);
+  }, [currentUser]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,6 +50,9 @@ export default function AddFurniture() {
       employee: need === "مطلوب" ? null : e.target.employee.value,
       status: need === "مطلوب" ? null : status,
       problem: status === "بحاجة صيانة" ? e.target.problem.value : null,
+
+      // 🔑 حفظ البريد الحالي فقط
+      managerEmail: currentUser?.email || null,
     });
 
     alert("تم حفظ الأثاث بنجاح");
@@ -47,7 +67,6 @@ export default function AddFurniture() {
       <h3>إضافة أثاث جديد</h3>
 
       <Form onSubmit={handleSubmit}>
-
         {/* الحاجة */}
         <Form.Group>
           <Form.Label>الحاجة</Form.Label>
@@ -94,7 +113,6 @@ export default function AddFurniture() {
           </Form.Group>
         )}
 
-     
         {/* الحالة */}
         {need === "متوفر" && (
           <Form.Group>
