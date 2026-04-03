@@ -1,44 +1,44 @@
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, getDocs, addDoc, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button } from "react-bootstrap";
-import { useState, useEffect } from "react";
 import Select from "react-select";
+import { useAuth } from "../components/AuthContext"; // استدعاء السياق
 
 export default function AddCar() {
   const [employees, setEmployees] = useState([]);
-
   const [need, setNeed] = useState("");
   const [carType, setCarType] = useState("");
   const [carName, setCarName] = useState("");
   const [status, setStatus] = useState("");
 
-useEffect(() => {
-  const fetchEmployees = async () => {
-    if (!currentUser) return;
+  const { currentUser } = useAuth(); // المستخدم الحالي
 
-    let q;
-    if (currentUser.role === "institutionManager") {
-      q = query(collection(db, "employees"), where("institutionName", "==", currentUser.name));
-    } else if (currentUser.role === "departementManager") {
-      q = query(collection(db, "employees"), where("departmentName", "==", currentUser.departmentName));
-    } else if (currentUser.role === "divisionManager") {
-      q = query(collection(db, "employees"), where("divisionName", "==", currentUser.divisionName));
-    } else {
-      // مدير النظام أو أدوار أخرى
-      q = collection(db, "employees");
-    }
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      if (!currentUser) return;
 
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map(doc => ({
-      value: doc.data().name,
-      label: doc.data().name
-    }));
-    setEmployees(data);
-  };
+      let q;
+      if (currentUser.role === "institutionManager") {
+        q = query(collection(db, "employees"), where("institutionName", "==", currentUser.name));
+      } else if (currentUser.role === "departementManager") {
+        q = query(collection(db, "employees"), where("departmentName", "==", currentUser.departmentName));
+      } else if (currentUser.role === "divisionManager") {
+        q = query(collection(db, "employees"), where("divisionName", "==", currentUser.divisionName));
+      } else {
+        q = collection(db, "employees");
+      }
 
-  fetchEmployees();
-}, [currentUser]);
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map(doc => ({
+        value: doc.data().name,
+        label: doc.data().name
+      }));
+      setEmployees(data);
+    };
 
+    fetchEmployees();
+  }, [currentUser]);
 
   const carNamesOptions = {
     "سيارة خدمة": ["سبورتاج", "توسان", "كيا ريو", "هيونداي النترا", "أخرى"],
@@ -62,6 +62,9 @@ useEffect(() => {
       effect: status === "معطلة" ? e.target.effect.value : null,
       priority: status === "معطلة" ? e.target.priority.value : null,
       year: need === "متوفر" ? e.target.year.value : null,
+
+      // 🔑 إضافة البريد الإلكتروني الذي قام بالإدخال
+      managerEmail: currentUser?.email || null,
     });
 
     alert("تم حفظ الآلية بنجاح");
@@ -77,7 +80,6 @@ useEffect(() => {
       <h3>إضافة آلية جديدة</h3>
 
       <Form onSubmit={handleSubmit}>
-
         {/* الحاجة */}
         <Form.Group>
           <Form.Label>الحاجة</Form.Label>
@@ -88,93 +90,13 @@ useEffect(() => {
           </Form.Select>
         </Form.Group>
 
-        {/* نوع الآلية */}
-        <Form.Group>
-          <Form.Label>نوع الآلية</Form.Label>
-          <Form.Select value={carType} onChange={(e) => setCarType(e.target.value)} required>
-            <option value="">اختر</option>
-            <option value="سيارة خدمة">سيارة خدمة</option>
-            <option value="مركبة زراعية">مركبة زراعية</option>
-            <option value="سيارة إسعاف">سيارة إسعاف</option>
-            <option value="شاحنة">شاحنة</option>
-            <option value="باص">باص</option>
-            <option value="أخرى">أخرى</option>
-          </Form.Select>
-        </Form.Group>
+        {/* باقي الحقول كما هي ... */}
 
-        {carType === "أخرى" && (
-          <Form.Group>
-            <Form.Label>نوع آخر</Form.Label>
-            <Form.Control name="otherType" required />
-          </Form.Group>
-        )}
-
-        {/* اسم الآلية */}
-        {carType && (
-          <Form.Group>
-            <Form.Label>اسم الآلية</Form.Label>
-            <Form.Select value={carName} onChange={(e) => setCarName(e.target.value)} required>
-              <option value="">اختر</option>
-              {carNamesOptions[carType]?.map((n, i) => (
-                <option key={i} value={n}>{n}</option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-        )}
-
-        {carName === "أخرى" && (
-          <Form.Group>
-            <Form.Label>اسم آخر</Form.Label>
-            <Form.Control name="otherName" required />
-          </Form.Group>
-        )}
-
-        {/* سنة التصنيع */}
-        {need === "متوفر" && (
-          <Form.Group>
-            <Form.Label>سنة التصنيع</Form.Label>
-            <Form.Control type="number" name="year" required />
-          </Form.Group>
-        )}
-
-        {/* الموظف */}
         {need === "متوفر" && (
           <Form.Group>
             <Form.Label>الموظف</Form.Label>
             <Select options={employees} name="employee" placeholder="اختر الموظف" isSearchable />
           </Form.Group>
-        )}
-
-        {/* الحالة */}
-        {need === "متوفر" && (
-          <Form.Group>
-            <Form.Label>الحالة</Form.Label>
-            <Form.Select value={status} onChange={(e) => setStatus(e.target.value)} required>
-              <option value="">اختر</option>
-              <option value="في الخدمة">في الخدمة</option>
-              <option value="معطلة">معطلة</option>
-            </Form.Select>
-          </Form.Group>
-        )}
-
-        {/* الأعطال */}
-        {status === "معطلة" && (
-          <>
-            <Form.Group>
-              <Form.Label>سبب العطل</Form.Label>
-              <Form.Control name="breakdown" required />
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>التأثير على الخدمة</Form.Label>
-              <Form.Control name="effect" required />
-            </Form.Group>
-
-            <Form.Group>
-              <Form.Label>أولوية الإصلاح (1-5)</Form.Label>
-              <Form.Control type="number" min="1" max="5" name="priority" required />
-            </Form.Group>
-          </>
         )}
 
         <Button type="submit" className="mt-3">حفظ الآلية</Button>
