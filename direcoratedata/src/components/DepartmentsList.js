@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button, Table, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
+import { useAuth } from "../contexts/AuthContext"; // تأكد من المسار الصحيح
 
 export default function DepartmentsList() {
   const [departments, setDepartments] = useState([]);
@@ -14,6 +15,7 @@ export default function DepartmentsList() {
   const [editingDep, setEditingDep] = useState(null);
 
   const navigate = useNavigate();
+  const { currentUser } = useAuth(); // المستخدم الحالي
 
   // تحميل الموظفين
   useEffect(() => {
@@ -28,15 +30,26 @@ export default function DepartmentsList() {
     fetchEmployees();
   }, []);
 
-  // تحميل الأقسام
+  // تحميل الأقسام الخاصة بالمستخدم الحالي
   const loadDepartments = async () => {
-    const snapshot = await getDocs(collection(db, "departments"));
+    if (!currentUser) return;
+
+    let q;
+    // إذا كان المستخدم مدير النظام نعرض كل الأقسام
+    if (currentUser.role === "admin") {
+      q = collection(db, "departments");
+    } else {
+      // غير ذلك نعرض الأقسام التي أنشأها هو فقط
+      q = query(collection(db, "departments"), where("managerEmail", "==", currentUser.email));
+    }
+
+    const snapshot = await getDocs(q);
     setDepartments(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
   };
 
   useEffect(() => {
     loadDepartments();
-  }, []);
+  }, [currentUser]);
 
   const handleEdit = (dep) => {
     setEditingDep({ ...dep });
@@ -64,12 +77,14 @@ export default function DepartmentsList() {
     <div className="p-3">
       <h3>الأقسام</h3>
 
-      {/* زر إضافة */}
-      <div className="d-flex justify-content-end mb-3">
-        <Button variant="primary" onClick={() => navigate("/add-department")}>
-          إضافة قسم جديد
-        </Button>
-      </div>
+      {/* زر إضافة يظهر فقط لغير المدير العام */}
+      {currentUser?.role !== "admin" && (
+        <div className="d-flex justify-content-end mb-3">
+          <Button variant="primary" onClick={() => navigate("/add-department")}>
+            إضافة قسم جديد
+          </Button>
+        </div>
+      )}
 
       {/* البحث */}
       <Form.Group className="mb-3">
@@ -88,7 +103,8 @@ export default function DepartmentsList() {
           <tr>
             <th>اسم القسم</th>
             <th>رئيس القسم</th>
-            <th>إجراءات</th>
+            {/* عمود الإجراءات يظهر فقط لغير المدير العام */}
+            {currentUser?.role !== "admin" && <th>إجراءات</th>}
           </tr>
         </thead>
         <tbody>
@@ -96,23 +112,25 @@ export default function DepartmentsList() {
             <tr key={dep.id}>
               <td>{dep.name}</td>
               <td>{dep.head}</td>
-              <td>
-                <Button
-                  size="sm"
-                  variant="warning"
-                  className="me-2"
-                  onClick={() => handleEdit(dep)}
-                >
-                  تعديل
-                </Button>
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => handleDelete(dep.id)}
-                >
-                  حذف
-                </Button>
-              </td>
+              {currentUser?.role !== "admin" && (
+                <td>
+                  <Button
+                    size="sm"
+                    variant="warning"
+                    className="me-2"
+                    onClick={() => handleEdit(dep)}
+                  >
+                    تعديل
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => handleDelete(dep.id)}
+                  >
+                    حذف
+                  </Button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
