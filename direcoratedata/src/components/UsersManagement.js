@@ -131,7 +131,7 @@ export default function UsersManagement() {
                   <option value="institutionManager">مدير مؤسسة</option>
                   <option value="departmentManager">مسؤول قسم</option>
                   <option value="divisionManager">مسؤول شعبة</option>
-                  <option value="normalUser">مستخدم عادي</option>
+                 
                 </Form.Select>
               </Form.Group>
 
