@@ -93,8 +93,6 @@ export default function DevicesList() {
     dev.model?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-
-  
   return (
     <div className="p-3">
       <h3>الأجهزة</h3>
@@ -116,7 +114,7 @@ export default function DevicesList() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </Form.Group>
- 
+
       {/* جدول الأجهزة */}
       <Table striped bordered hover responsive>
         <thead>
@@ -160,12 +158,12 @@ export default function DevicesList() {
           ))}
         </tbody>
       </Table>
-        
+
       {/* نافذة التعديل */}
-     <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
-  <Modal.Header closeButton>
-    <Modal.Title>تعديل الجهاز</Modal.Title>
-  </Modal.Header>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>تعديل الجهاز</Modal.Title>
+        </Modal.Header>
 
   <Modal.Body>
     {editingDevice && (
