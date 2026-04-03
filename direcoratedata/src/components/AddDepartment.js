@@ -3,9 +3,11 @@ import { db } from "../firebase";
 import { Form, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import Select from "react-select";
+import { useAuth } from "./components/AuthContext"; // تأكد من المسار الصحيح
 
 export default function AddDepartment() {
   const [employees, setEmployees] = useState([]);
+  const { currentUser } = useAuth(); // جلب المستخدم الحالي
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -30,7 +32,13 @@ export default function AddDepartment() {
       return;
     }
 
-    await addDoc(collection(db, "departments"), { name, head });
+    // إضافة البريد الإلكتروني للمستخدم الحالي
+    await addDoc(collection(db, "departments"), { 
+      name, 
+      head, 
+      managerEmail: currentUser?.email // هذا هو المفتاح
+    });
+
     alert("تم حفظ القسم بنجاح");
     e.target.reset();
   };
