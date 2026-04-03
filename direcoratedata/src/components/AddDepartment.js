@@ -3,7 +3,7 @@ import { db } from "../firebase";
 import { Form, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import Select from "react-select";
-import { useAuth } from "./components/AuthContext"; // تأكد من المسار الصحيح
+import { useAuth } from "../components/AuthContext"; // تأكد من المسار الصحيح
 
 export default function AddDepartment() {
   const [employees, setEmployees] = useState([]);
