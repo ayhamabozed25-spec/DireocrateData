@@ -117,50 +117,7 @@ export default function DevicesList() {
         />
       </Form.Group>
 
-      {/* جدول الأجهزة */}
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>النوع</th>
-            <th>البراند</th>
-            <th>الموظف</th>
-            <th>الحالة</th>
-            {/* عمود الإجراءات يظهر فقط لغير مدير النظام */}
-            {currentUser?.role !== "systemAdmin" && <th>إجراءات</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredDevices.map((dev) => (
-            <tr key={dev.id}>
-              <td>{dev.type}</td>
-              <td>{dev.brand}</td>
-              <td>{dev.employee}</td>
-              <td>{dev.status}</td>
-              {currentUser?.role !== "systemAdmin" && (
-                <td>
-                  <Button
-                    size="sm"
-                    variant="warning"
-                    className="me-2"
-                    onClick={() => handleEdit(dev)}
-                  >
-                    تعديل
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => handleDelete(dev.id)}
-                  >
-                    حذف
-                  </Button>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-
-
+  
   return (
     <div className="p-3">
       <h3>الأجهزة</h3>
@@ -507,6 +464,6 @@ export default function DevicesList() {
   </Button>
 </Modal.Footer>
 </Modal>
-
+      </div>
   );
 }
