@@ -116,7 +116,7 @@ export default function DevicesList() {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </Form.Group>
-    </div>
+ 
       {/* جدول الأجهزة */}
       <Table striped bordered hover responsive>
         <thead>
@@ -441,6 +441,6 @@ export default function DevicesList() {
   </Button>
 </Modal.Footer>
 </Modal>
-
+   </div>
   );
 }
