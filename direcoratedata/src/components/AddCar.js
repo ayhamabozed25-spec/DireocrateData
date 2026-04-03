@@ -12,17 +12,33 @@ export default function AddCar() {
   const [carName, setCarName] = useState("");
   const [status, setStatus] = useState("");
 
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      const snapshot = await getDocs(collection(db, "employees"));
-      const data = snapshot.docs.map(doc => ({
-        value: doc.data().name,
-        label: doc.data().name
-      }));
-      setEmployees(data);
-    };
-    fetchEmployees();
-  }, []);
+useEffect(() => {
+  const fetchEmployees = async () => {
+    if (!currentUser) return;
+
+    let q;
+    if (currentUser.role === "institutionManager") {
+      q = query(collection(db, "employees"), where("institutionName", "==", currentUser.name));
+    } else if (currentUser.role === "departementManager") {
+      q = query(collection(db, "employees"), where("departmentName", "==", currentUser.departmentName));
+    } else if (currentUser.role === "divisionManager") {
+      q = query(collection(db, "employees"), where("divisionName", "==", currentUser.divisionName));
+    } else {
+      // مدير النظام أو أدوار أخرى
+      q = collection(db, "employees");
+    }
+
+    const snapshot = await getDocs(q);
+    const data = snapshot.docs.map(doc => ({
+      value: doc.data().name,
+      label: doc.data().name
+    }));
+    setEmployees(data);
+  };
+
+  fetchEmployees();
+}, [currentUser]);
+
 
   const carNamesOptions = {
     "سيارة خدمة": ["سبورتاج", "توسان", "كيا ريو", "هيونداي النترا", "أخرى"],
