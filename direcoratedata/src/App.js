@@ -99,7 +99,7 @@ function App() {
           <Route
             path="/buildings"
             element={
-              canSeeRestricted ? (
+              (systemAdmin || institutionManger) ? (
                 <BuildingList />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -109,7 +109,7 @@ function App() {
           <Route
             path="/add-building"
             element={
-              canSeeRestricted ? (
+              (systemAdmin || institutionManger) ? (
                 <AddBuilding />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -136,7 +136,7 @@ function App() {
           <Route
             path="/projects"
             element={
-              canSeeRestricted ? (
+              (systemAdmin || institutionManger) ? (
                 <ProjectsList />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -146,7 +146,7 @@ function App() {
           <Route
             path="/add-Project"
             element={
-              canSeeRestricted ? (
+             (systemAdmin || institutionManger) ? (
                 <AddProject />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -158,7 +158,7 @@ function App() {
           <Route
             path="/project-challenges"
             element={
-              canSeeRestricted ? (
+              (systemAdmin || institutionManger) ? (
                 <ProjectChallengesList />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -168,7 +168,7 @@ function App() {
           <Route
             path="/add-ProjectChallenge"
             element={
-              canSeeRestricted ? (
+              (systemAdmin || institutionManger) ? (
                 <AddProjectChallenge />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -180,7 +180,7 @@ function App() {
           <Route
             path="/services"
             element={
-              canSeeRestricted ? (
+             (systemAdmin || institutionManger) ? (
                 <ServicesList />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -190,7 +190,7 @@ function App() {
           <Route
             path="/add"
             element={
-              canSeeRestricted ? (
+              (systemAdmin || institutionManger) ? (
                 <AddService />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -202,7 +202,7 @@ function App() {
           <Route
             path="/swot"
             element={
-              canSeeRestricted ? (
+              (systemAdmin || institutionManger) ? (
                 <SwotList />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -212,7 +212,7 @@ function App() {
           <Route
             path="/add-swot"
             element={
-              canSeeRestricted ? (
+              (systemAdmin || institutionManger) ? (
                 <AddSwot />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -224,7 +224,7 @@ function App() {
           <Route
             path="/Dashboard"
             element={
-              canSeeRestricted ? (
+             (systemAdmin || institutionManger) ? (
                 <Dashboard />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -235,7 +235,7 @@ function App() {
           <Route
             path="/UsersManagement"
             element={
-              canSeeRestricted ? (
+              (systemAdmin || institutionManger)? (
                 <UsersManagement />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
