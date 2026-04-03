@@ -63,10 +63,7 @@ function App() {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
               {/* روابط متاحة للجميع */}
-              <Nav.Link as={Link} to="/employees">الموظفون</Nav.Link>
-              <Nav.Link as={Link} to="/devices">الأجهزة</Nav.Link>
-              <Nav.Link as={Link} to="/cars">الآليات</Nav.Link>
-              <Nav.Link as={Link} to="/furniture">الأثاث</Nav.Link>
+
 
               {departementManager && (
                 <>
@@ -95,6 +92,11 @@ function App() {
               )}
             </Nav>
 
+                <Nav.Link as={Link} to="/employees">الموظفون</Nav.Link>
+              <Nav.Link as={Link} to="/devices">الأجهزة</Nav.Link>
+              <Nav.Link as={Link} to="/cars">الآليات</Nav.Link>
+              <Nav.Link as={Link} to="/furniture">الأثاث</Nav.Link>
+  
             {/* اسم المستخدم + زر تسجيل الخروج */}
             <Nav>
               <Navbar.Text className="me-3 text-light">
