@@ -2,6 +2,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { useAuth } from "./components/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "./firebase";
 
 import BuildingList from "./components/BuildingList";
 import AddBuilding from "./components/AddBuilding";
@@ -28,20 +30,30 @@ import ProjectChallengesList from "./components/ProjectChallengesList";
 import ProjectsList from "./components/ProjectsList";
 import Dashboard from "./components/Dashboard";
 import UsersManagement from "./components/UsersManagement";
-import  LoginPage from "./components/LoginPage";
+import LoginPage from "./components/LoginPage";
 
 function App() {
   const { currentUser } = useAuth();
 
-   const systemAdmin = currentUser?.role === "systemAdmin" ;
-   const institutionManager = currentUser?.role === "institutionManager" ;
-   const divisionManager = currentUser?.role === "divisionManager" ;
-   const departementManager = currentUser?.role === "departementManager" ;
-  
- if (!currentUser) {
- console.log("cu" , currentUser);
-  return <LoginPage />;
-}
+  const systemAdmin = currentUser?.role === "systemAdmin";
+  const institutionManager = currentUser?.role === "institutionManager";
+  const divisionManager = currentUser?.role === "divisionManager";
+  const departementManager = currentUser?.role === "departementManager";
+
+  if (!currentUser) {
+    console.log("cu", currentUser);
+    return <LoginPage />;
+  }
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      window.location.href = "/"; // إعادة التوجيه لصفحة الدخول
+    } catch (error) {
+      console.error("خطأ أثناء تسجيل الخروج:", error);
+    }
+  };
+
   return (
     <Router>
       <Navbar bg="dark" variant="dark" expand="lg">
@@ -50,23 +62,19 @@ function App() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-
               {/* روابط متاحة للجميع */}
-             
-             
               <Nav.Link as={Link} to="/employees">الموظفون</Nav.Link>
               <Nav.Link as={Link} to="/devices">الأجهزة</Nav.Link>
               <Nav.Link as={Link} to="/cars">الآليات</Nav.Link>
               <Nav.Link as={Link} to="/furniture">الأثاث</Nav.Link>
 
-             {departementManager && (
+              {departementManager && (
                 <>
-                   <Nav.Link as={Link} to="/divisions">الشعب</Nav.Link>
-            
+                  <Nav.Link as={Link} to="/divisions">الشعب</Nav.Link>
                 </>
               )}
-  
-              {/* روابط خاصة بالمدير  فقط */}
+
+              {/* روابط خاصة بمدير المؤسسة */}
               {institutionManager && (
                 <>
                   <Nav.Link as={Link} to="/buildings">الأبنية</Nav.Link>
@@ -75,26 +83,29 @@ function App() {
                   <Nav.Link as={Link} to="/services">الخدمات</Nav.Link>
                   <Nav.Link as={Link} to="/swot">SWOT</Nav.Link>
                   <Nav.Link as={Link} to="/Dashboard">Dashboard</Nav.Link>
-            
                 </>
               )}
 
-           {systemAdmin && (
+              {systemAdmin && (
                 <>
-                 <Nav.Link as={Link} to="/UsersManagement"> UsersManagement</Nav.Link>
+                  <Nav.Link as={Link} to="/UsersManagement">UsersManagement</Nav.Link>
                 </>
               )}
+            </Nav>
 
+            {/* اسم المستخدم + زر تسجيل الخروج */}
+            <Nav>
+              <Navbar.Text className="me-3 text-light">
+                {currentUser?.name || currentUser?.email}
+              </Navbar.Text>
+              <Nav.Link onClick={handleLogout}>تسجيل الخروج</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
       <Container className="mt-4">
-
-
         <Routes>
-
           {/* الأبنية */}
           <Route
             path="/buildings"
@@ -146,7 +157,7 @@ function App() {
           <Route
             path="/add-Project"
             element={
-             (systemAdmin || institutionManager) ? (
+              (systemAdmin || institutionManager) ? (
                 <AddProject />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -180,7 +191,7 @@ function App() {
           <Route
             path="/services"
             element={
-             (systemAdmin || institutionManager) ? (
+              (systemAdmin || institutionManager) ? (
                 <ServicesList />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
@@ -224,25 +235,25 @@ function App() {
           <Route
             path="/Dashboard"
             element={
-             (systemAdmin || institutionManager) ? (
+              (systemAdmin || institutionManager) ? (
                 <Dashboard />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
               )
             }
           />
-               {/* UsersManagement */}
+
+          {/* UsersManagement */}
           <Route
             path="/UsersManagement"
             element={
-              (systemAdmin || institutionManager)? (
+              (systemAdmin || institutionManager) ? (
                 <UsersManagement />
               ) : (
                 <h3 className="text-danger">غير مسموح لك بالوصول إلى هذه الصفحة</h3>
               )
             }
           />
-
         </Routes>
       </Container>
     </Router>
