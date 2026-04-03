@@ -93,29 +93,6 @@ export default function DevicesList() {
     dev.model?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  return (
-    <div className="p-3">
-      <h3>الأجهزة</h3>
-
-      {/* زر إضافة يظهر فقط لغير مدير النظام */}
-      {currentUser?.role !== "systemAdmin" && (
-        <div className="d-flex justify-content-end mb-3">
-          <Button variant="primary" onClick={() => navigate("/add-device")}>
-            إضافة جهاز جديد
-          </Button>
-        </div>
-      )}
-
-      {/* البحث */}
-      <Form.Group className="mb-3">
-        <Form.Label className="fw-bold">بحث</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="ابحث عن جهاز..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Form.Group>
 
   
   return (
@@ -464,6 +441,6 @@ export default function DevicesList() {
   </Button>
 </Modal.Footer>
 </Modal>
-      
+      </div>
   );
 }
