@@ -4,7 +4,7 @@ import { db } from "../firebase";
 import { Form, Button, Table, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { useAuth } from "../contexts/AuthContext"; // تأكد من المسار الصحيح
+import { useAuth } from "./components/AuthContext"; // تأكد من المسار الصحيح
 
 export default function DepartmentsList() {
   const [departments, setDepartments] = useState([]);
