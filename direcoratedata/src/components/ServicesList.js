@@ -31,7 +31,7 @@ export default function ServicesList() {
   const [editingService, setEditingService] = useState(null);
 
   const navigate = useNavigate(); // ← مهم جداً
- const { CurrentUser } = getAuth;
+   const { currentUser } = useAuth();
   const loadServices = async () => {
     const snapshot = await getDocs(collection(db, "services"));
     setServices(snapshot.docs.map((docu) => ({ id: docu.id, ...docu.data() })));
