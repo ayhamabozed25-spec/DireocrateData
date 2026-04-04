@@ -18,6 +18,7 @@ import {
 } from "react-bootstrap";
 import { syrianDirectorates } from "./directorates";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../components/AuthContext"; 
 
 export default function ServicesList() {
   const [services, setServices] = useState([]);
@@ -30,7 +31,7 @@ export default function ServicesList() {
   const [editingService, setEditingService] = useState(null);
 
   const navigate = useNavigate(); // ← مهم جداً
-
+ const { CurrentUser } = getAuth;
   const loadServices = async () => {
     const snapshot = await getDocs(collection(db, "services"));
     setServices(snapshot.docs.map((docu) => ({ id: docu.id, ...docu.data() })));
