@@ -31,7 +31,7 @@ export default function CarsList() {
     } else {
       q = collection(db, "employees"); // مدير النظام يرى الجميع
     }
-
+    
     const snapshot = await getDocs(q);
     const data = snapshot.docs.map(doc => ({
       value: doc.data().name,
@@ -43,6 +43,15 @@ export default function CarsList() {
   fetchEmployees();
 }, [currentUser]);
 
+    const carNamesOptions = {
+    "سيارة خدمة": ["سبورتاج", "توسان", "كيا ريو", "هيونداي النترا", "أخرى"],
+    "مركبة زراعية": ["جرار", "كومباين", "أخرى"],
+    "سيارة إسعاف": ["مرسيدس سبرينتر", "فورد ترانزيت", "أخرى"],
+    "شاحنة": ["فولفو FH", "مرسيدس أكتروس", "أخرى"],
+    "باص": ["هيونداي كاونتي", "مرسيدس ميني باص", "أخرى"],
+    "أخرى": ["أخرى"]
+  };
+  
   // تحميل الآليات حسب الدور
   const loadCars = async () => {
     if (!currentUser) return;
