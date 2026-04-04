@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs, updateDoc, deleteDoc, doc, query, where } from "firebase/firestore";
 import { db } from "../firebase";
-import { Form, Button, Table, Modal } from "react-bootstrap";
+import { Form, Button, Table, Modal,Col,Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import MapPicker from "../components/MapPicker";
