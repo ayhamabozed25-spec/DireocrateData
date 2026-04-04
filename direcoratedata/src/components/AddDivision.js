@@ -3,7 +3,7 @@ import { db } from "../firebase";
 import { Form, Button } from "react-bootstrap";
 import { useState, useEffect, useContext } from "react";
 import Select from "react-select";
-import { AuthContext } from "../context/AuthContext"; // استدعاء الـ AuthContext
+import { AuthContext } from "../components/AuthContext"; // استدعاء الـ AuthContext
 
 export default function AddDivision() {
   const [employees, setEmployees] = useState([]);
