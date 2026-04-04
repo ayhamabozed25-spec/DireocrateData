@@ -95,74 +95,6 @@ export default function FurnitureList() {
     <div className="p-3">
       <h3>الأثاث</h3>
 
-      {/* زر إضافة يظهر فقط لغير مدير النظام */}
-      {currentUser?.role !== "systemAdmin" && (
-        <div className="d-flex justify-content-end mb-3">
-          <Button variant="primary" onClick={() => navigate("/add-furniture")}>
-            إضافة أثاث جديد
-          </Button>
-        </div>
-      )}
-
-      {/* البحث */}
-      <Form.Group className="mb-3">
-        <Form.Label className="fw-bold">بحث</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="ابحث عن أثاث..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </Form.Group>
-
-      {/* جدول الأثاث */}
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>النوع</th>
-            <th>الكمية</th>
-            <th>الموظف</th>
-            <th>الحالة</th>
-            {/* عمود الإجراءات يظهر فقط لغير مدير النظام */}
-            {currentUser?.role !== "systemAdmin" && <th>إجراءات</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredFurniture.map((item) => (
-            <tr key={item.id}>
-              <td>{item.type}</td>
-              <td>{item.quantity}</td>
-              <td>{item.employee}</td>
-              <td>{item.status}</td>
-              {currentUser?.role !== "systemAdmin" && (
-                <td>
-                  <Button
-                    size="sm"
-                    variant="warning"
-                    className="me-2"
-                    onClick={() => handleEdit(item)}
-                  >
-                    تعديل
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => handleDelete(item.id)}
-                  >
-                    حذف
-                  </Button>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-
-
-  return (
-    <div className="p-3">
-      <h3>الأثاث</h3>
-
       {/* زر إضافة */}
       <div className="d-flex justify-content-end mb-3">
         <Button variant="primary" onClick={() => navigate("/add-furniture")}>
@@ -265,7 +197,6 @@ export default function FurnitureList() {
     <option value="أخرى">أخرى</option>
   </Form.Select>
 </Form.Group>
-
 {/* إذا اختار "أخرى" يظهر حقل إضافي */}
 {editingItem.type === "أخرى" && (
   <Form.Group className="mb-3">
@@ -279,8 +210,6 @@ export default function FurnitureList() {
     />
   </Form.Group>
 )}
-
-
               {/* الكمية */}
               <Form.Group className="mb-3">
                 <Form.Label>الكمية</Form.Label>
@@ -306,9 +235,6 @@ export default function FurnitureList() {
                   />
                 </Form.Group>
               )}
-
-        
-
               {/* الحالة */}
               {editingItem.need === "متوفر" && (
                 <Form.Group className="mb-3">
