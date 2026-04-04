@@ -3,14 +3,14 @@ import { db } from "../firebase";
 import { Form, Button } from "react-bootstrap";
 import { useState, useEffect, useContext } from "react";
 import Select from "react-select";
-import { AuthContext } from "../components/AuthContext"; // استدعاء الـ AuthContext
+import { useAuth } from "../components/AuthContext"; // استدعاء الـ AuthContext
 
 export default function AddDivision() {
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [userData, setUserData] = useState(null);
 
-  const { currentUser } = useContext(AuthContext); // الحصول على المستخدم الحالي من الـ Context
+  const { currentUser } = useAuth(AuthContext); // الحصول على المستخدم الحالي من الـ Context
 
   // جلب بيانات المستخدم الحالي من جدول dir_users
   useEffect(() => {
