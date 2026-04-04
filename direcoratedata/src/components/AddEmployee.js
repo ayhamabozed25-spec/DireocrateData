@@ -10,7 +10,7 @@ export default function AddEmployee() {
   const [departments, setDepartments] = useState([]);
   const [divisions, setDivisions] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
-
+  const [IsStudent, setIsStudent] = useState("");
   const [need, setNeed] = useState("");
   const [qualification, setQualification] = useState("");
   const [university, setUniversity] = useState("");
