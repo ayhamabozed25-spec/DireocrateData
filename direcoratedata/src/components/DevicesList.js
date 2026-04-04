@@ -39,6 +39,16 @@ export default function DevicesList() {
     fetchEmployees();
   }, [currentUser]);
 
+    const brandOptions = {
+    "لاب توب": ["Dell", "HP", "Lenovo", "Asus", "Acer", "Apple", "أخرى"],
+    "سيرفر": ["Dell", "HP", "IBM", "Cisco", "Supermicro", "أخرى"],
+    "حاسوب مكتبي": ["Dell", "HP", "Lenovo", "Asus", "MSI", "أخرى"],
+    "تاب": ["Samsung", "Apple", "Huawei", "Lenovo", "أخرى"],
+    "طابعة": ["Canon", "HP", "Epson", "Brother", "أخرى"],
+    "راوتر": ["Cisco", "TP-Link", "Netgear", "Huawei", "أخرى"],
+    "أخرى": ["أخرى"]
+  };
+  
   const loadDevices = async () => {
     if (!currentUser) return;
     let q;
