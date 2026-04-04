@@ -10,7 +10,7 @@ export default function AddDivision() {
   const [departments, setDepartments] = useState([]);
   const [userData, setUserData] = useState(null);
 
-  const { currentUser } = useAuth(AuthContext); // الحصول على المستخدم الحالي من الـ Context
+  const { currentUser } = useAuth(); // الحصول على المستخدم الحالي من الـ Context
 
   // جلب بيانات المستخدم الحالي من جدول dir_users
   useEffect(() => {
