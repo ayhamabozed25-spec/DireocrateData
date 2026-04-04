@@ -288,6 +288,7 @@ export default function DevicesList() {
                         required
                       />
                     </Form.Group>
+                         
                   )}
 
                   {/* تاريخ الشراء */}
@@ -352,7 +353,7 @@ export default function DevicesList() {
                           required
                         />
                       </Form.Group>
-                    
+                            </>
                   )}
 
                   {/* التأثير */}
