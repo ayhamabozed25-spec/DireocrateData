@@ -1,18 +1,17 @@
 import { collection, addDoc, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { Form, Button } from "react-bootstrap";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import Select from "react-select";
-import { useAuth } from "../components/AuthContext"; // استدعاء الـ AuthContext
+import { useAuth } from "../components/AuthContext";
 
 export default function AddDivision() {
-  const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [userData, setUserData] = useState(null);
 
-  const { currentUser } = useAuth(); // الحصول على المستخدم الحالي من الـ Context
+  const { currentUser } = useAuth();
 
-  // جلب بيانات المستخدم الحالي من جدول dir_users
+  // جلب بيانات المستخدم الحالي
   useEffect(() => {
     const fetchUserData = async () => {
       if (!currentUser) return;
@@ -24,36 +23,6 @@ export default function AddDivision() {
     fetchUserData();
   }, [currentUser]);
 
-  // جلب الموظفين حسب الدور
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      if (!userData) return;
-
-      const snapshot = await getDocs(collection(db, "employees"));
-      let data = snapshot.docs.map(doc => ({
-        value: doc.data().name,
-        label: doc.data().name,
-        departmentName: doc.data().departmentName,
-        institutionName: doc.data().institutionName
-      }));
-
-      if (userData.role === "institutionManager") {
-        // موظفي المؤسسة فقط
-        data = data.filter(emp => emp.institutionName === userData.name);
-      } else if (userData.role === "departmentManager") {
-        // موظفي القسم ضمن المؤسسة
-        data = data.filter(
-          emp =>
-            emp.institutionName === userData.name &&
-            emp.departmentName === userData.departmentName
-        );
-      }
-
-      setEmployees(data);
-    };
-    fetchEmployees();
-  }, [userData]);
-
   // جلب الأقسام حسب الدور
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -64,39 +33,46 @@ export default function AddDivision() {
         const data = snapshot.docs
           .filter(doc => doc.data().institutionName === userData.name)
           .map(doc => ({
-            value: doc.data().name,
-            label: doc.data().name
+            value: doc.id,               // حفظ ID القسم
+            label: doc.data().name       // عرض اسم القسم
           }));
         setDepartments(data);
+
       } else if (userData.role === "departmentManager") {
-        setDepartments([{ value: userData.departmentName, label: userData.departmentName }]);
+        setDepartments([
+          {
+            value: userData.departmentId,   // ID القسم
+            label: userData.departmentName  // اسم القسم
+          }
+        ]);
       }
     };
+
     fetchDepartments();
   }, [userData]);
 
+  // حفظ الشعبة
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const name = e.target.name.value.trim();
-    let department;
-    if (userData?.role === "institutionManager") {
-      department = e.target.department.value;
-    } else {
-      department = userData?.departmentName;
-    }
-    const head = e.target.head.value;
+    let departmentId;
 
-    if (!name || !department) {
+    if (userData?.role === "institutionManager") {
+      departmentId = e.target.department.value; // هذا هو ID القسم
+    } else {
+      departmentId = userData?.departmentId;
+    }
+
+    if (!name || !departmentId) {
       alert("اسم الشعبة والقسم إلزاميان ❌");
       return;
     }
 
-    await addDoc(collection(db, "divisions"), { 
-      name, 
-      department, 
-      head, 
-      email: currentUser.email // حفظ إيميل المستخدم الحالي
+    await addDoc(collection(db, "divisions"), {
+      name,
+      departmentId,          // حفظ ID القسم فقط
+      email: currentUser.email
     });
 
     alert("تم حفظ الشعبة بنجاح");
@@ -115,6 +91,7 @@ export default function AddDivision() {
 
         <Form.Group className="mb-3">
           <Form.Label>القسم التابع له</Form.Label>
+
           {userData?.role === "institutionManager" ? (
             <Select
               options={departments}
@@ -129,16 +106,6 @@ export default function AddDivision() {
               readOnly
             />
           )}
-        </Form.Group>
-
-        <Form.Group className="mb-3">
-          <Form.Label>رئيس الشعبة</Form.Label>
-          <Select
-            options={employees}
-            name="head"
-            placeholder="اختر رئيس الشعبة"
-            isSearchable
-          />
         </Form.Group>
 
         <Button type="submit" className="mt-3">حفظ الشعبة</Button>
